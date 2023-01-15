@@ -1,0 +1,9 @@
+main: de.greensurvivors.greentreasure.GreenPlugin
+name: GreenPlugin
+version: 1.0.0
+api-version: 1.19
+author: GreensurvivorsTeam
+
+commands:
+  greenplugin:
+    description: A command.
