@@ -4,12 +4,12 @@ plugins {
     `java-library`
     //java
     id("io.papermc.paperweight.userdev") version "1.3.8"
-	id("xyz.jpenilla.run-paper") version "1.0.6" // Adds runServer and runMojangMappedServer tasks for testing
+	id("xyz.jpenilla.run-paper") version "2.0.1" // Adds runServer and runMojangMappedServer tasks for testing
 }
 
 group = "de.greensurvivors"
 version = "1.0.0-SNAPSHOT"
-description = "A Greensurvivors Plugin"
+description = "A Greensurvivors Plugin "
 //java.sourceCompatibility = JavaVersion.VERSION_17
 
 java {

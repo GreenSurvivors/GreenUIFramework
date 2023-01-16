@@ -1,4 +1,4 @@
-package de.greensurvivors.greentreasure;
+package de.greensurvivors.greenplugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
