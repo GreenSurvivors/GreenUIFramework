@@ -6,4 +6,4 @@ pluginManagement {
 }
 
 
-rootProject.name = "GreenTreasure"
+rootProject.name = "GreenPlugin"
