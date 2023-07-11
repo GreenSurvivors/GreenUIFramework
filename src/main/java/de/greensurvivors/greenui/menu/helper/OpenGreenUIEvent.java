@@ -7,12 +7,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class OpenMenuEvent extends Event {
+/**
+ * This event is called whenever a new {@link Menu} is opened.
+ * The {@link de.greensurvivors.greenui.menu.MenuManager} listens to this event to keep track witch player has what menu open
+ */
+public class OpenGreenUIEvent extends Event {
     private final @NotNull HandlerList handlers = new HandlerList();
     private final @NotNull UUID viewer;
     private @NotNull Menu menu;
 
-    public OpenMenuEvent(@NotNull UUID viewer, @NotNull Menu menu) {
+    public OpenGreenUIEvent(@NotNull UUID viewer, @NotNull Menu menu) {
         this.viewer = viewer;
         this.menu = menu;
     }

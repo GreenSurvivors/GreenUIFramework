@@ -39,7 +39,8 @@ public class RunnableMenuItem extends BasicMenuItem {
 
         switch (event.getClick()) {
             //runs the runnable in another sync task to prevent future bugs
-            case LEFT, DOUBLE_CLICK, SHIFT_LEFT -> Bukkit.getScheduler().runTask(this.plugin, () -> this.runnable.run());
+            case LEFT, DOUBLE_CLICK, SHIFT_LEFT ->
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.runnable.run());
         }
     }
 

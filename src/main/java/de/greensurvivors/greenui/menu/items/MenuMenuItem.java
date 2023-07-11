@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.menu.helper.OpenMenuEvent;
+import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -48,7 +48,7 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
 
         switch (event.getClick()) {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT -> Bukkit.getScheduler().runTask(
-                    this.plugin, () -> (new OpenMenuEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent()
+                    this.plugin, () -> (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent()
             );
         }
     }

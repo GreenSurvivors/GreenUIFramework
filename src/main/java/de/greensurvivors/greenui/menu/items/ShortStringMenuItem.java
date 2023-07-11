@@ -20,23 +20,23 @@ import java.util.function.Consumer;
  * therefor it extends MenuMenuItem
  */
 public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
-    protected @NotNull Consumer<String> callback;
+    protected @NotNull Consumer<@NotNull String> stringConsumer;
 
-    public ShortStringMenuItem(@NotNull Plugin plugin, @NotNull Consumer<String> callback, @NotNull Material displayMat) {
-        this(plugin, callback, null, null, displayMat, 1, true);
+    public ShortStringMenuItem(@NotNull Plugin plugin, @NotNull Consumer<String> stringConsumer, @NotNull Material displayMat) {
+        this(plugin, stringConsumer, null, null, displayMat, 1, true);
     }
 
-    public ShortStringMenuItem(@NotNull Plugin plugin, @NotNull Consumer<String> callback, @Nullable Component name, @Nullable List<Component> description, @NotNull Material displayMat, int amount, boolean shouldReturnToParent) {
+    public ShortStringMenuItem(@NotNull Plugin plugin, @NotNull Consumer<String> stringConsumer, @Nullable Component name, @Nullable List<Component> description, @NotNull Material displayMat, int amount, boolean shouldReturnToParent) {
         super(plugin, displayMat, amount, name, description,
-                new AnvilMenu(plugin,true, false, "",
+                new AnvilMenu(plugin, true, false, null, "",
                         resultItemStack -> {
                             if (resultItemStack != null) {
-                                callback.accept(PlainTextComponentSerializer.plainText().serialize(resultItemStack.displayName()));
+                                stringConsumer.accept(PlainTextComponentSerializer.plainText().serialize(resultItemStack.displayName()));
                             }
                         }),
                 shouldReturnToParent);
 
-        this.callback = callback;
+        this.stringConsumer = stringConsumer;
 
         super.menuToOpen.setItem(new BasicMenuItem(this.plugin, Material.PAPER), AnvilMenu.Slots.LEFT.getId());
 
@@ -52,7 +52,7 @@ public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
     @Override
     public @NotNull ShortStringMenuItem clone() {
         ShortStringMenuItem clone = (ShortStringMenuItem) super.clone();
-        clone.callback = callback;
+        clone.stringConsumer = stringConsumer;
 
         return clone;
     }

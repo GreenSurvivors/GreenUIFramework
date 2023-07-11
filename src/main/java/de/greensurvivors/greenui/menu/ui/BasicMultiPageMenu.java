@@ -1,9 +1,11 @@
 package de.greensurvivors.greenui.menu.ui;
 
 import de.greensurvivors.greenui.menu.helper.MenuDefaults;
-import de.greensurvivors.greenui.menu.helper.OpenMenuEvent;
+import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.items.RunnableMenuItem;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryView;
@@ -20,22 +22,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional filter
-    private final int rows;
-    private final boolean shouldReturnToParent;
+    protected final int rows;
+    protected boolean shouldReturnToParent;
     protected @NotNull HashMap<@NotNull Integer, @NotNull BasicMenu> pages = new HashMap<>();
     protected boolean allowModifyNonMenuItems;
-    @Deprecated //may paper ever consequently allow to set Component titles
-    protected @Nullable String title;
+    protected TextComponent title;
     //used to update titles
     protected @Nullable InventoryView view = null;
     protected @NotNull Plugin plugin;
-    private int openPage = 0;
+    protected int openPage = 0;
 
     public BasicMultiPageMenu(@NotNull Plugin plugin, boolean shouldReturnToParent) {
-        this(plugin, shouldReturnToParent, false, "", 6);
+        this(plugin, shouldReturnToParent, false, null, 6);
     }
 
-    public BasicMultiPageMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, boolean allowModifyNonMenuItems, @Nullable String title, int rows) {
+    public BasicMultiPageMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows) {
         this.plugin = plugin;
         this.shouldReturnToParent = shouldReturnToParent;
         this.allowModifyNonMenuItems = allowModifyNonMenuItems;
@@ -79,10 +80,10 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
 
         menu.open(player);
         if (this.view != null && this.title != null) {
-            this.view.setTitle(title);
+            this.view.setTitle(title.content());
         }
 
-        (new OpenMenuEvent(player.getUniqueId(), menu)).callEvent();
+        Bukkit.getScheduler().runTask(this.plugin, () -> (new OpenGreenUIEvent(player.getUniqueId(), menu)).callEvent());
     }
 
     /**
@@ -115,23 +116,20 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
             int start = pages.size();
 
             for (int i = 0; i <= diff; i++) {
-                pages.put(start + i, new BasicMenu(plugin, false, allowModifyNonMenuItems, title, rows));
+                pages.put(start + i, new BasicMenu(plugin, false, allowModifyNonMenuItems, (TextComponent) title, rows));
             }
         }
     }
 
     /**
      * set the title of all pages
-     * please note: this is deprecated and might be replaced with a component method,
-     * if paper ever decides to allowing setting component titles in {@link InventoryView}
      */
-    @Deprecated
-    public void setTitle(String title) {
+    public void setTitle(TextComponent title) {
         this.title = title;
 
         if (view != null) {
             // why paper?
-            view.setTitle(title);
+            view.setTitle(title.content());
         }
     }
 
@@ -330,18 +328,8 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
             rowsField.setAccessible(true);
             rowsField.set(clone, rows);
 
-            Field shouldReturnedField = BasicMultiPageMenu.class.getDeclaredField("shouldReturnToParent");
-            shouldReturnedField.setAccessible(true);
-            shouldReturnedField.set(clone, shouldReturnToParent);
-
-
-            Field pagesField = BasicMultiPageMenu.class.getDeclaredField("pages");
-            pagesField.setAccessible(true);
-            pagesField.set(clone,
-                    pages.entrySet().stream().collect(
-                            Collectors.toMap(Map.Entry::getKey, e -> e.getValue().clone())
-                    ));
-
+            clone.shouldReturnToParent = this.shouldReturnToParent;
+            clone.pages = new HashMap<>(pages.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().clone())));
             clone.allowModifyNonMenuItems = allowModifyNonMenuItems;
             clone.title = title;
 

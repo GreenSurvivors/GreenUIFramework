@@ -14,25 +14,34 @@ import java.util.List;
 
 /**
  * framework for all MenuItems,
- * it does nothing, so it is perfekt for filler or disabled items!
+ * it does nothing, so it is perfekt for filler or disabled items (you have to set the material for disabled yourself)!
+ * <p>
+ * In order to get recognized as a special items by the menus, all kinds of MenuItems have to expand this class.
  */
 public class BasicMenuItem extends ItemStack implements Cloneable {
     protected @NotNull Plugin plugin;
 
+    /**
+     * new basic menu item, defaults to {@link MenuDefaults#getFillerMaterial()}
+     */
     public BasicMenuItem(@NotNull Plugin plugin) {
         super(MenuDefaults.getFillerMaterial());
         this.plugin = plugin;
     }
 
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull ItemStack displayItemStack) {
-        super(displayItemStack.getType());
-        super.setItemMeta(displayItemStack.getItemMeta());
+    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Material material) {
+        super(material);
 
         this.plugin = plugin;
     }
 
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Material material) {
-        super(material);
+    /**
+     * copy the given itemStack
+     */
+    public BasicMenuItem(@NotNull Plugin plugin, @NotNull ItemStack displayItemStack) {
+        super(displayItemStack.getType());
+        super.setAmount(displayItemStack.getAmount());
+        super.setItemMeta(displayItemStack.getItemMeta().clone());
 
         this.plugin = plugin;
     }

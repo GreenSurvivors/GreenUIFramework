@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu;
 
-import de.greensurvivors.greenui.menu.helper.OpenMenuEvent;
+import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -18,19 +18,22 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.UUID;
 
+/**
+ * keeps track of all open GreenUIs and keeps them working by providing event calls
+ */
 public class MenuManager implements Listener {
     private final Plugin plugin;
     // Stores all currently open inventories by all players, using a stack system we can easily add or remove child inventories.
-    private final HashMap <UUID, Stack<Menu>> activeMenus = new HashMap<>();
+    private final HashMap<UUID, Stack<Menu>> activeMenus = new HashMap<>();
 
-    public MenuManager(Plugin plugin){
+    public MenuManager(Plugin plugin) {
         this.plugin = plugin;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
-    public void onOpenMenu(OpenMenuEvent event){
+    public void onOpenMenu(OpenGreenUIEvent event) {
         activeMenus.computeIfAbsent(event.getViewer(), k -> new Stack<>());
         Stack<Menu> menuStack = activeMenus.get(event.getViewer());
 
@@ -54,7 +57,7 @@ public class MenuManager implements Listener {
         if (menu != null && event.getRawSlot() < menu.getSize()) {
             menu.onInventoryClick(event);
 
-            if (event.getWhoClicked() instanceof Player player){
+            if (event.getWhoClicked() instanceof Player player) {
                 // I have no idea why InventoryClickEvent encourages to call this while the method itself doesn't,
                 // however calling this should do no harm
                 player.updateInventory();
@@ -63,7 +66,7 @@ public class MenuManager implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onDragMenu(final InventoryDragEvent event){/* //todo
+    private void onDragMenu(final InventoryDragEvent event) {/* //todo
         UUID playerId = event.getWhoClicked().getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;
@@ -135,7 +138,7 @@ public class MenuManager implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onCloseMenu(final InventoryCloseEvent event){
+    private void onCloseMenu(final InventoryCloseEvent event) {
         UUID playerId = event.getPlayer().getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;
@@ -145,23 +148,28 @@ public class MenuManager implements Listener {
         final Inventory inv = event.getInventory();
         final UUID uuid = event.getPlayer().getUniqueId();
 
-        if (menu.onClose()){
+        if (menu.onClose()) {
             // the menu wants to stay open
             // wait for the event to pass to reopen the inventory
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Player player = Bukkit.getPlayer(uuid);
 
-                if (player != null){
+                if (player != null) {
                     player.openInventory(inv);
                 }
 
-            },0);
+            }, 0);
         } else {
             //successfully closed
             activeMenus.get(uuid).pop();
         }
     }
 
+    /**
+     * closes all open menus of a player if they quit
+     *
+     * @param event
+     */
     @EventHandler
     private void onPlayerQuit(final PlayerQuitEvent event) {
         if (activeMenus.containsKey(event.getPlayer().getUniqueId())) {
@@ -169,7 +177,12 @@ public class MenuManager implements Listener {
         }
     }
 
-    public void closeAll(HumanEntity player){
+    /**
+     * forces to close all open menus of a player
+     *
+     * @param player
+     */
+    public void closeAll(HumanEntity player) {
         UUID playerId = player.getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;

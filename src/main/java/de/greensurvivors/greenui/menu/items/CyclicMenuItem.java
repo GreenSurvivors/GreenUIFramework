@@ -11,30 +11,43 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+/**
+ * This menuItem has a list of given values it can be in.
+ * everytime it was clicked, it will go up / down this list.
+ */
 public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
-    protected static final int LORE_ENTRIES = 5; // has to be uneven
+    protected static final int LORE_ENTRIES = 5; // has to be uneven to  display an even number of items before / after, and the state we are in, in between
 
-    protected @NotNull List<ItemStackInfo> itemStackInfos;
-    protected @NotNull Consumer<ItemStackInfo> changeConsumer;
+    // holds the list of display items to circle through
+    protected @NotNull List<@NotNull ItemStackInfo> itemStackInfos;
+    // called whenever the index was changed
+    protected @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer;
+    // holds the index of the current info taken from itemStackInfos
     protected int index = 0;
 
-    /**
-     * @param display
-     * @param changeConsumer
-     */
-    public CyclicMenuItem(@NotNull Plugin plugin, @NotNull List<ItemStackInfo> display, @NotNull Consumer<ItemStackInfo> changeConsumer) {
+    public CyclicMenuItem(@NotNull Plugin plugin, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
         super(plugin);
         this.itemStackInfos = display;
-        this.changeConsumer = changeConsumer;
+        this.infoConsumer = infoConsumer;
 
         updateDisplay();
     }
 
+    /**
+     * ensures the given index in bounds of the possible indexes of itemStackInfos.
+     * It works with modulo, so it will roll over.
+     * <p>
+     * Please note: this just does math, it will NOT set the current index!
+     */
     protected int modInfosIndex(int i) {
         return Math.floorMod(i, itemStackInfos.size());
     }
 
+    /**
+     * updates the display depending on {@link CyclicMenuItem#index}
+     */
     protected void updateDisplay() {
         if (!itemStackInfos.isEmpty()) {
             ItemStackInfo elementNow = itemStackInfos.get(0);
@@ -81,17 +94,23 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
             } //todo let the player write the name of option
         }
         updateDisplay();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.changeConsumer.accept(this.itemStackInfos.get(index)));
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
     }
 
     public @NotNull List<ItemStackInfo> getItemStackInfos() {
         return itemStackInfos;
     }
 
+    /**
+     * add another entry
+     */
     public void addItemInfo(@NotNull ItemStackInfo newInfo) {
         this.itemStackInfos.add(newInfo);
     }
 
+    /**
+     * remove an entry from the list
+     */
     public void removeItemInfo(@NotNull ItemStackInfo removedInfo) {
         this.itemStackInfos.remove(removedInfo);
     }
@@ -99,7 +118,10 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
     @Override
     public @NotNull CyclicMenuItem clone() {
         CyclicMenuItem clone = (CyclicMenuItem) super.clone();
-        // TODO: copy mutable state here, so the clone can't change the internals of the original
+
+        clone.itemStackInfos = this.itemStackInfos.stream().map(ItemStackInfo::clone).collect(Collectors.toCollection(ArrayList::new));
+        clone.infoConsumer = this.infoConsumer;
+        clone.index = this.index;
         return clone;
     }
 }

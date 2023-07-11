@@ -4,6 +4,7 @@ import de.greensurvivors.greenui.menu.helper.MenuDefaults;
 import de.greensurvivors.greenui.menu.items.ColorHolderMenuItem;
 import de.greensurvivors.greenui.menu.items.RunnableMenuItem;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.HSVLike;
@@ -15,18 +16,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * pretty advanced menu: Lets you pick a color via hsv color picker
+ */
 public class ColorPickerMenu extends BasicMenu {
     //7 or bigger
     protected static final int HUE_AMOUNT = 25;
     protected final @NotNull ColorHolderMenuItem[] hueItems = new ColorHolderMenuItem[HUE_AMOUNT];
-    protected final @NotNull Consumer<TextColor> result;
+    // you can scroll through the hue items and this is the index we are in right now
     protected int scrollIndex = 0;
+    // called whenever the user chooses a color
+    protected final @NotNull Consumer<TextColor> result;
 
     public ColorPickerMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, @NotNull Consumer<TextColor> result) {
-        this(plugin, shouldReturnToParent, false, "", 6, result);
+        this(plugin, shouldReturnToParent, false, null, 6, result);
     }
 
-    public ColorPickerMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, boolean allowModifyNonMenuItems, @Nullable String title, int rows, @NotNull Consumer<TextColor> result) {
+    public ColorPickerMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows, @NotNull Consumer<TextColor> result) {
         super(plugin, shouldReturnToParent, allowModifyNonMenuItems, title, rows);
 
         this.result = result;

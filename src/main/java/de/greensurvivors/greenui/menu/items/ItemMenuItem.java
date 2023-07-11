@@ -2,6 +2,7 @@ package de.greensurvivors.greenui.menu.items;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,16 +14,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * this is a one slot item acceptor. You can put items into, but you can empty it as well.
+ * Because of this, it's consumer must accept "null" as representation of an empty slot as well.
+ */
 public class ItemMenuItem extends BasicMenuItem implements Cloneable {
-    protected @NotNull Consumer<@Nullable ItemStack> consumer;
-    protected final static @NotNull Material emptyMaterial = Material.STRUCTURE_VOID;
     //translations are registered at the MenuManager
     protected final static @NotNull TranslatableComponent EMPTY = Component.translatable().key("menu.item_menu_item.empty").fallback("empty").append().build(); //todo translation
+    protected final static @NotNull Material emptyMaterial = Material.STRUCTURE_VOID;
 
-    public ItemMenuItem(@NotNull Plugin plugin, @NotNull Consumer<ItemStack> consumer) {
+    // called whenever this item changes
+    protected @NotNull Consumer<@Nullable ItemStack> itemConsumer;
+
+    public ItemMenuItem(@NotNull Plugin plugin, @NotNull Consumer<ItemStack> itemConsumer) {
         super(plugin, emptyMaterial, 1, EMPTY, null);
 
-        this.consumer = consumer;
+        this.itemConsumer = itemConsumer;
     }
 
     /**
@@ -32,30 +39,29 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
      * @param event the click event that was called
      */
     public void onClick(@NotNull InventoryClickEvent event) {
-
-        if (this.getType() == Material.STRUCTURE_VOID && this.displayName().equals(EMPTY)){
+        if (this.getType() == Material.STRUCTURE_VOID && this.displayName().equals(EMPTY)) {
             // if self is "empty" representation, only accept swaps; no places, pickup, moves, drops, collections
             // placing an item here would only increase the amount (since the slot holds an item in reality) and that's no good for being "empty"
             // swaps however may be handled as places
             switch (event.getAction()) {
                 case // Modified other slots
-                     PICKUP_ALL,
-                     MOVE_TO_OTHER_INVENTORY,
-                     COLLECT_TO_CURSOR,
-                     HOTBAR_SWAP, // always just a move to hotbar since this slot is never empty
-                     // Modified cursor and clicked
-                     PICKUP_SOME,
-                     PICKUP_HALF,
-                     PICKUP_ONE,
-                     PLACE_ALL,
-                     PLACE_SOME,
-                     PLACE_ONE,
-                     // Modified clicked only
-                     DROP_ALL_SLOT,
-                     DROP_ONE_SLOT,
-                     // whatever happened here, we can't support it.
-                     UNKNOWN -> {
-                        event.setCancelled(true);
+                        PICKUP_ALL,
+                                MOVE_TO_OTHER_INVENTORY,
+                                COLLECT_TO_CURSOR,
+                                HOTBAR_SWAP, // always just a move to hotbar since this slot is never empty
+                                // Modified cursor and clicked
+                                PICKUP_SOME,
+                                PICKUP_HALF,
+                                PICKUP_ONE,
+                                PLACE_ALL,
+                                PLACE_SOME,
+                                PLACE_ONE,
+                                // Modified clicked only
+                                DROP_ALL_SLOT,
+                                DROP_ONE_SLOT,
+                                // whatever happened here, we can't support it.
+                                UNKNOWN -> {
+                    event.setCancelled(true);
                 }
                 // Modified other slots
                 case HOTBAR_MOVE_AND_READD -> {
@@ -69,7 +75,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                             this.setItemMeta(swappedStack.getItemMeta());
                         }
 
-                        consumer.accept(getCleanCopy ());
+                        Bukkit.getScheduler().runTask(this.plugin, () -> itemConsumer.accept(getCleanCopy()));
                         event.setCancelled(true);
                     }
                 }
@@ -82,29 +88,28 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                         this.setItemMeta(onCursor.getItemMeta());
                     }
 
-                    consumer.accept(getCleanCopy ());
+                    Bukkit.getScheduler().runTask(this.plugin, () -> itemConsumer.accept(getCleanCopy()));
                     event.setCancelled(true);
                 }
                 // Modified cursor only and nothing we don't care about
                 case DROP_ALL_CURSOR,
-                     DROP_ONE_CURSOR,
-                     CLONE_STACK,
-                     NOTHING -> {
+                        DROP_ONE_CURSOR,
+                        CLONE_STACK,
+                        NOTHING -> {
                 }
             }
         } else {
-            //todo
             switch (event.getAction()) {
                 // Modified other slots
                 case MOVE_TO_OTHER_INVENTORY -> { //cancel, set self to none but update other slot nevertheless
                     event.getWhoClicked().getInventory().addItem(getCleanCopy());
                     setEmpty();
 
-                    this.consumer.accept(null);
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(null));
                     event.setCancelled(true);
                 }
                 case PICKUP_ALL -> { // cancel, set self to none, update other slots and cursor nevertheless (geht in den curser, außer der hat bereits item & slot acceptiert keine Items wie ein result slot, dann wandert es zum anderen Inv)
-                    if (event.getView().getSlotType(event.getSlot()) == InventoryType.SlotType.RESULT){
+                    if (event.getView().getSlotType(event.getSlot()) == InventoryType.SlotType.RESULT) {
                         event.getWhoClicked().getInventory().addItem(getCleanCopy());
                     } else {
                         event.getView().setCursor(getCleanCopy());
@@ -116,24 +121,24 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                 case HOTBAR_MOVE_AND_READD -> { //cancel, set self to none, update hotbar & other slot (hotbarslot wird getauscht)
                     int hotbarSlot = event.getHotbarButton();
 
-                    if (hotbarSlot > 0){
+                    if (hotbarSlot > 0) {
                         ItemStack hotbarCopy = event.getWhoClicked().getInventory().getItem(hotbarSlot);
 
-                        if (hotbarCopy != null){
+                        if (hotbarCopy != null) {
                             hotbarCopy = hotbarCopy.clone();
                         }
 
                         event.getWhoClicked().getInventory().setItem(hotbarSlot, getCleanCopy());
 
-                        if (hotbarCopy != null){
+                        if (hotbarCopy != null) {
                             this.setType(hotbarCopy.getType());
                             this.setAmount(hotbarCopy.getAmount());
                             this.setItemMeta(hotbarCopy.getItemMeta());
 
-                            this.consumer.accept(getCleanCopy());
+                            Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(getCleanCopy()));
                         } else {
                             setEmpty();
-                            consumer.accept(null);
+                            Bukkit.getScheduler().runTask(this.plugin, () -> itemConsumer.accept(null));
                         }
                     }
 
@@ -145,11 +150,11 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                 case HOTBAR_SWAP -> { // cancel accept new item stack and update hotbar (hotbar slot is empty)
                     int hotbarSlot = event.getHotbarButton();
 
-                    if (hotbarSlot > 0){
+                    if (hotbarSlot > 0) {
                         event.getWhoClicked().getInventory().setItem(hotbarSlot, getCleanCopy());
 
                         setEmpty();
-                        consumer.accept(null);
+                        Bukkit.getScheduler().runTask(this.plugin, () -> itemConsumer.accept(null));
                     }
 
                     event.setCancelled(true);
@@ -170,24 +175,24 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                     this.setAmount(this.getAmount() - toPlace);
                     event.getView().setCursor(copy);
 
-                    this.consumer.accept(getCleanCopy());
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(getCleanCopy()));
                     event.setCancelled(true);
                 }
                 case PICKUP_HALF -> {
-                    float half = (float)this.getAmount() / 2.0F;
+                    float half = (float) this.getAmount() / 2.0F;
 
                     ItemStack copy = getCleanCopy();
-                    copy.setAmount((int)Math.ceil(half));
+                    copy.setAmount((int) Math.ceil(half));
 
-                    this.setAmount((int)Math.floor(half));
+                    this.setAmount((int) Math.floor(half));
                     event.getView().setCursor(copy);
 
-                    this.consumer.accept(getCleanCopy());
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(getCleanCopy()));
                     event.setCancelled(true);
                 }
                 case PICKUP_ONE -> {
-                    if (this.getAmount() > 1){
-                        if (this.isSimilar(event.getCursor())){
+                    if (this.getAmount() > 1) {
+                        if (this.isSimilar(event.getCursor())) {
                             event.getCursor().setAmount(event.getCursor().getAmount() + 1);
                         } else {
                             ItemStack clone = getCleanCopy();
@@ -195,10 +200,10 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                             event.getView().setCursor(clone);
                         }
 
-                        this.setAmount(this.getAmount() -1);
-                        this.consumer.accept(getCleanCopy());
+                        this.setAmount(this.getAmount() - 1);
+                        Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(getCleanCopy()));
                     } else {
-                        if (this.isSimilar(event.getCursor())){
+                        if (this.isSimilar(event.getCursor())) {
                             event.getCursor().setAmount(event.getCursor().getAmount() + 1);
                         } else {
                             ItemStack clone = getCleanCopy();
@@ -207,7 +212,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                         }
 
                         setEmpty();
-                        consumer.accept(null);
+                        Bukkit.getScheduler().runTask(this.plugin, () -> itemConsumer.accept(null));
                     }
 
                     event.setCancelled(true);
@@ -221,7 +226,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                         event.getCursor().setAmount(0);
 
                         this.setAmount(this.getAmount() + newAmount);
-                        this.consumer.accept(getCleanCopy ());
+                        Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(getCleanCopy()));
                     }
                     event.setCancelled(true);
                 }
@@ -243,7 +248,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                         event.getCursor().setAmount(event.getCursor().getAmount() - toPlace);
                         this.setAmount(this.getAmount() + toPlace);
 
-                        this.consumer.accept(getCleanCopy ());
+                        this.itemConsumer.accept(getCleanCopy());
                     }
 
                     event.setCancelled(true);
@@ -257,7 +262,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                         }
 
                         this.setAmount(this.getAmount() + 1);
-                        this.consumer.accept(getCleanCopy ());
+                        Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(getCleanCopy()));
                     }
 
                     event.setCancelled(true);
@@ -272,22 +277,22 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
                         this.setAmount(cursorClone.getAmount());
                         this.setItemMeta(cursorClone.getItemMeta());
 
-                        this.consumer.accept(this);
+                        Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(this));
                     } else {
                         event.getView().setCursor(getCleanCopy());
 
                         setEmpty();
-                        this.consumer.accept(null);
+                        Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(null));
                     }
 
                     event.setCancelled(true);
                 }
                 // Modified clicked only
                 case DROP_ALL_SLOT -> { // cancel, set self to none, & drop item
-                    event.getWhoClicked().getWorld().dropItemNaturally(event.getWhoClicked().getLocation(), getCleanCopy ());
+                    event.getWhoClicked().getWorld().dropItemNaturally(event.getWhoClicked().getLocation(), getCleanCopy());
                     setEmpty();
 
-                    this.consumer.accept(null);
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(null));
                     event.setCancelled(true);
                 }
                 case DROP_ONE_SLOT -> { // cancel, test if this would be empty and set self to none if true; drop item
@@ -299,9 +304,9 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
 
                     if (this.getAmount() <= 1) {
                         setEmpty();
-                        this.consumer.accept(null);
+                        this.itemConsumer.accept(null);
                     } else {
-                        this.consumer.accept(this);
+                        Bukkit.getScheduler().runTask(this.plugin, () -> this.itemConsumer.accept(this));
                     }
 
                     event.setCancelled(true);
@@ -322,7 +327,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
         //event.getHotbarButton() > 0
     }
 
-    protected void setEmpty(){
+    protected void setEmpty() {
         this.setType(emptyMaterial);
         this.setAmount(1);
 
@@ -332,9 +337,10 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
 
     /**
      * gets a copy, that is NOT a MenuItem
+     *
      * @return
      */
-    protected ItemStack getCleanCopy (){
+    protected ItemStack getCleanCopy() {
         ItemStack result = new ItemStack(this.getType(), this.getAmount());
         result.setItemMeta(this.getItemMeta());
 
@@ -344,7 +350,7 @@ public class ItemMenuItem extends BasicMenuItem implements Cloneable {
     @Override
     public @NotNull ItemMenuItem clone() {
         ItemMenuItem clone = (ItemMenuItem) super.clone();
-        // TODO: copy mutable state here, so the clone can't change the internals of the original
+        clone.itemConsumer = this.itemConsumer;
         return clone;
     }
 }

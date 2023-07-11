@@ -1,6 +1,7 @@
 package de.greensurvivors.greenui.menu.ui;
 
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -11,25 +12,23 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
-import java.util.UUID;
-
+/**
+ * most basic menu. You have to provide an Inventory yourself.
+ */
 public class BasicCustomInvMenu implements Menu, Cloneable {
-    protected final boolean shouldReturnedTo;
+    protected boolean shouldReturnedTo;
     protected @NotNull Inventory inventory;
     protected boolean allowModifyNonMenuItems;
     //used to update titles
     protected InventoryView view;
-    protected UUID viewerUUID;
     protected @NotNull Plugin plugin;
-    @Deprecated
-    protected @Nullable String title;
+    protected @Nullable TextComponent title;
 
     public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
         this(plugin, inventory, shouldReturnedTo, allowModifyNonMenuItems, null);
     }
 
-    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable String title) {
+    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title) {
         this.plugin = plugin;
         this.inventory = inventory;
         this.shouldReturnedTo = shouldReturnedTo;
@@ -45,12 +44,11 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
      */
     @Override
     public void open(@NotNull HumanEntity player) {
-        this.viewerUUID = player.getUniqueId();
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             this.view = player.openInventory(this.inventory);
 
             if (this.view != null && this.title != null) {
-                this.view.setTitle(title);
+                this.view.setTitle(title.content()); // why just string?!
             }
         });
     }
@@ -108,16 +106,13 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
 
     /**
      * set the title of the menu
-     * please note: this is deprecated and might be replaced with a component method,
-     * if paper ever decides to allowing setting component titles in {@link InventoryView}
      */
-    @Deprecated
-    public void setTitle(String title) {
+    public void setTitle(TextComponent title) {
         this.title = title;
 
         if (view != null) {
             // why paper?
-            view.setTitle(title);
+            view.setTitle(title.content());
         }
     }
 
@@ -158,19 +153,12 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
         try {
             BasicCustomInvMenu clone = (BasicCustomInvMenu) super.clone();
             clone.allowModifyNonMenuItems = allowModifyNonMenuItems;
-
-            Field shouldReturnedField = BasicCustomInvMenu.class.getDeclaredField("shouldReturnedTo");
-            shouldReturnedField.setAccessible(true);
-            shouldReturnedField.set(clone, shouldReturnedTo);
-
-            clone.allowModifyNonMenuItems = allowModifyNonMenuItems;
+            clone.shouldReturnedTo = this.shouldReturnedTo;
             clone.title = title;
 
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
-        } catch (ReflectiveOperationException ex) {
-            throw new AssertionError(ex);
         }
     }
 

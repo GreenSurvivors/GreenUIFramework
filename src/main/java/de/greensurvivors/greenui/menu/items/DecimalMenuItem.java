@@ -14,23 +14,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * MenuItem to receive a decimal value from the user.
+ * The user can click to in/decrease the value, with two configurable step-sizes.
+ */
 public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
-    protected double value;
-    protected @NotNull Consumer<Double> consumer;
+    protected @NotNull DecimalFormat form = new DecimalFormat("#.##");
+    // optional upper / lower bounds
     protected @Nullable Double min, max;
+    // big steps
     protected int intStepSize;
+    // finer steps
     protected double fractionalStepSize;
-    protected DecimalFormat form = new DecimalFormat("#.##");
+    // called whenever the value changes
+    protected @NotNull Consumer<@NotNull Double> decimalConsumer;
+    // the state this menuItem is in
+    protected double value;
 
-    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Double> consumer) {
-        this(plugin, displayMat, 1, null, consumer, 0, null, null, 1, 0.1);
+    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Double> decimalConsumer) {
+        this(plugin, displayMat, 1, null, decimalConsumer, 0, null, null, 1, 0.1);
     }
 
-    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Double> consumer,
+    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Double> decimalConsumer,
                            double startingValue, @Nullable Double min, @Nullable Double max, int intStepSize, double fractionalStepSize) {
         super(plugin, displayMat, amount, name, null);
 
-        this.consumer = consumer;
+        this.decimalConsumer = decimalConsumer;
         this.value = startingValue;
         this.min = min;
         this.max = max;
@@ -47,9 +56,12 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
 
         //update result
         updateLore();
-        consumer.accept(value);
+        decimalConsumer.accept(value);
     }
 
+    /**
+     * updates the lore to reflect changed Values
+     */
     public void updateLore() {
         List<Component> newLore = new ArrayList<>();
         Component loreLine = Component.empty();
@@ -97,13 +109,19 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
 
         //update this
         updateLore();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.consumer.accept(value));
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.decimalConsumer.accept(value));
     }
 
+    /**
+     * get the current value
+     */
     public double getValue() {
         return value;
     }
 
+    /**
+     * set the current value
+     */
     public void setValue(int newValue) {
         this.value = newValue;
 
@@ -117,13 +135,19 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
 
         //update result
         updateLore();
-        consumer.accept(value);
+        decimalConsumer.accept(value);
     }
 
     @Override
     public @NotNull DecimalMenuItem clone() {
         DecimalMenuItem clone = (DecimalMenuItem) super.clone();
-        // TODO: copy mutable state here, so the clone can't change the internals of the original
+        clone.decimalConsumer = this.decimalConsumer;
+        clone.min = this.min;
+        clone.max = this.max;
+        clone.value = this.value;
+        clone.intStepSize = this.intStepSize;
+        clone.fractionalStepSize = this.fractionalStepSize;
+        clone.form = (DecimalFormat) this.form.clone();
         return clone;
     }
 }

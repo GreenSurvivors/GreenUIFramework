@@ -15,14 +15,16 @@ import java.util.function.Consumer;
  * This MenuItem just echos it's set color when clicked
  */
 public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
-    private final Consumer<TextColor> resultingColor;
-    private TextColor color;
+    // called whenever the item was clicked
+    protected @NotNull Consumer<@NotNull TextColor> colorConsumer;
+    // the state of this item
+    protected @NotNull TextColor color; // don't let the IDE fool you. it's getting set via this.setColor(color) in constructor.
 
     /**
      * @param displayMat should be one of {@link Material#LEATHER_HELMET}, {@link Material#LEATHER_CHESTPLATE}, {@link Material#LEATHER_LEGGINGS} or {@link Material#LEATHER_BOOTS}
      *                   the result will be a leather item colored with the given color. If no valid material is given, this will return a colored {@link Material#LEATHER_CHESTPLATE}
      */
-    public ColorHolderMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, TextColor color, Consumer<TextColor> resultingColor) {
+    public ColorHolderMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @NotNull TextColor color, Consumer<TextColor> colorConsumer) {
         super(plugin,
                 switch (displayMat) {
                     case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> displayMat;
@@ -34,7 +36,7 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
         );
 
         this.setColor(color);
-        this.resultingColor = resultingColor;
+        this.colorConsumer = colorConsumer;
     }
 
     /**
@@ -49,15 +51,35 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
 
         switch (event.getClick()) {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT ->
-                    Bukkit.getScheduler().runTask(this.plugin, () -> this.resultingColor.accept(this.color));
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.colorConsumer.accept(this.color));
         }
     }
 
-    public TextColor getColor() {
+    /**
+     * get the consumer of this item
+     */
+    public @NotNull Consumer<TextColor> getColorConsumer() {
+        return colorConsumer;
+    }
+
+    /**
+     * change the consumer of this item
+     */
+    public void setColorConsumer(@NotNull Consumer<TextColor> colorConsumer) {
+        this.colorConsumer = colorConsumer;
+    }
+
+    /**
+     * get the color this item displays
+     */
+    public @NotNull TextColor getColor() {
         return color;
     }
 
-    public void setColor(TextColor color) {
+    /**
+     * set the color this item displays
+     */
+    public void setColor(@NotNull TextColor color) {
         if (super.getItemMeta() instanceof ColorableArmorMeta meta) {
             meta.setColor(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()));
             super.setItemMeta(meta);
@@ -69,7 +91,8 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
     @Override
     public @NotNull ColorHolderMenuItem clone() {
         ColorHolderMenuItem clone = (ColorHolderMenuItem) super.clone();
-        // TODO: copy mutable state here, so the clone can't change the internals of the original
+        clone.color = TextColor.color(color.value());
+        clone.colorConsumer = this.colorConsumer;
         return clone;
     }
 }

@@ -13,23 +13,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * MenuItem to receive a bool from the user
+ * In contrast to most other menuItems, this handles its own displayitem from the startup
+ */
 public class BoolMenuItem extends BasicMenuItem implements Cloneable {
-    protected final @NotNull Consumer<Boolean> consumer;
-    private final @NotNull ItemStack TRUE_STACK = new ItemStack(Material.LIME_CONCRETE, 1);
-    private final @NotNull ItemStack FALSE_STACK = new ItemStack(Material.RED_CONCRETE, 1);
+    // material to display both possible states
+    protected final static @NotNull ItemStack TRUE_STACK = new ItemStack(Material.LIME_CONCRETE, 1);
+    protected final static @NotNull ItemStack FALSE_STACK = new ItemStack(Material.RED_CONCRETE, 1);
+    // called whenever the state changes
+    protected @NotNull Consumer<@NotNull Boolean> boolConsumer;
+    // the state this item is in
     protected boolean stateNow;
 
-    /**
-     * in contrast to most other menuItems, this handles its own displayitem from the startup
-     *
-     * @param name
-     * @param startingValue
-     * @param consumer
-     */
-    public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> consumer) {
+    public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
         super(plugin);
 
-        this.consumer = consumer;
+        this.boolConsumer = boolConsumer;
         this.stateNow = startingValue;
 
         //set up meta for both sides
@@ -67,8 +67,12 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
         updateState();
     }
 
-    private void updateState() {
-        this.consumer.accept(stateNow);
+    /**
+     * called when the state this item is in was changed.
+     * the display will reflect this change and the consumer will be called
+     */
+    protected void updateState() {
+        this.boolConsumer.accept(stateNow);
 
         if (this.stateNow) {
             this.setType(TRUE_STACK.getType());
@@ -79,10 +83,30 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
         }
     }
 
+    /**
+     * get the consumer of this item
+     */
+    public Consumer<Boolean> getBoolConsumer() {
+        return boolConsumer;
+    }
+
+    /**
+     * set the consumer of this item
+     */
+    public void setBoolConsumer(Consumer<Boolean> boolConsumer) {
+        this.boolConsumer = boolConsumer;
+    }
+
+    /**
+     * get the current state of this item
+     */
     public boolean getState() {
         return stateNow;
     }
 
+    /**
+     * set the current state of this item
+     */
     public void setState(boolean newState) {
         this.stateNow = newState;
         updateState();
@@ -91,7 +115,9 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     @Override
     public @NotNull BoolMenuItem clone() {
         BoolMenuItem clone = (BoolMenuItem) super.clone();
-        // TODO: copy mutable state here, so the clone can't change the internals of the original
+        clone.boolConsumer = this.boolConsumer;
+        clone.stateNow = this.stateNow;
+
         return clone;
     }
 }

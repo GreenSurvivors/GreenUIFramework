@@ -2,6 +2,7 @@ package de.greensurvivors.greenui.menu.ui;
 
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -20,24 +21,22 @@ import java.util.function.Consumer;
  * please note: in order to edit the ItemName in {@link Slots#RESULT} there has to be an item in {@link Slots#LEFT},
  * AnvilMenu will add a paper itself, if a startingText was given
  */
-public class AnvilMenu extends BasicMenu implements Menu, Cloneable {
-    protected @NotNull Consumer<ItemStack> resultItemConsumer;
+public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
+    protected @NotNull Consumer<@NotNull ItemStack> itemConsumer;
     protected @Nullable String startingText;
 
-    public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, @NotNull Consumer<ItemStack> resultItemConsumer) {
-        this(plugin, shouldReturnedTo, false, null, resultItemConsumer);
+    public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
+        this(plugin, shouldReturnedTo, false, null, null, itemConsumer);
     }
 
-    public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable String startingText, @NotNull Consumer<ItemStack> resultItemConsumer) {
-        super(plugin, shouldReturnedTo, allowModifyNonMenuItems);
-        this.resultItemConsumer = resultItemConsumer;
+    public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
+        super(plugin, title != null ?
+                        Bukkit.createInventory(null, InventoryType.ANVIL, title) :
+                        Bukkit.createInventory(null, InventoryType.ANVIL),
+                shouldReturnedTo, allowModifyNonMenuItems);
+        this.itemConsumer = itemConsumer;
         this.startingText = startingText;
-
-        if (this.title != null) {
-            this.inventory = Bukkit.createInventory(null, InventoryType.ANVIL, this.title);
-        } else {
-            this.inventory = Bukkit.createInventory(null, InventoryType.ANVIL);
-        }
+        this.title = title;
     }
 
     /**
@@ -73,8 +72,8 @@ public class AnvilMenu extends BasicMenu implements Menu, Cloneable {
      */
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getRawSlot() == Slots.RESULT.getId()) {
-            resultItemConsumer.accept(((AnvilInventory) inventory).getResult());
+        if (event.getRawSlot() == Slots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
+            itemConsumer.accept(((AnvilInventory) inventory).getResult());
         }
 
         super.onInventoryClick(event);
@@ -93,7 +92,7 @@ public class AnvilMenu extends BasicMenu implements Menu, Cloneable {
     public @NotNull AnvilMenu clone() {
         AnvilMenu clone = (AnvilMenu) super.clone();
 
-        clone.resultItemConsumer = resultItemConsumer;
+        clone.itemConsumer = itemConsumer;
         clone.startingText = startingText;
 
         return clone;

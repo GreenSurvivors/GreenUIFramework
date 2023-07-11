@@ -13,10 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * MenuItem to receive a decimal value from the user.
+ * The user can click to in/decrease the value, with two step-sizes.
+ */
 public class IntMenuItem extends BasicMenuItem implements Cloneable {
+    // optional upper / lower bounds
     protected @Nullable Integer min, max;
+    // called whenever the value changes
+    protected @NotNull Consumer<@NotNull Integer> intConsumer;
+    // the state this menuItem is in
     protected int value;
-    protected @NotNull Consumer<Integer> consumer;
 
     public IntMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Integer> consumer) {
         this(plugin, displayMat, 1, null, consumer, 0, null, null);
@@ -25,7 +32,7 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
     public IntMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Integer> consumer, int startingValue, @Nullable Integer min, @Nullable Integer max) {
         super(plugin, displayMat, amount, name, null);
 
-        this.consumer = consumer;
+        this.intConsumer = consumer;
         this.value = startingValue;
         this.min = min;
         this.max = max;
@@ -43,6 +50,9 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
         consumer.accept(value);
     }
 
+    /**
+     * updates the lore to reflect changed Values
+     */
     public void updateLore() {
         List<Component> newLore = new ArrayList<>();
         Component loreLine = Component.empty();
@@ -90,13 +100,19 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
 
         //update this
         updateLore();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.consumer.accept(value));
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.intConsumer.accept(value));
     }
 
+    /**
+     * get the current value
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * set the current value
+     */
     public void setValue(int newValue) {
         this.value = newValue;
 
@@ -110,13 +126,16 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
 
         //update result
         updateLore();
-        consumer.accept(value);
+        intConsumer.accept(value);
     }
 
     @Override
     public @NotNull IntMenuItem clone() {
         IntMenuItem clone = (IntMenuItem) super.clone();
-        // TODO: copy mutable state here, so the clone can't change the internals of the original
+        clone.min = this.min;
+        clone.max = this.max;
+        clone.value = this.value;
+        clone.intConsumer = this.intConsumer;
         return clone;
     }
 }
