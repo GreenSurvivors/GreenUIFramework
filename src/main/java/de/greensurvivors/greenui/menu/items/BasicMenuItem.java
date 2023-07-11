@@ -65,7 +65,7 @@ public class BasicMenuItem extends ItemStack implements Cloneable {
     }
 
     /**
-     * called when this Item was clicked.
+     * called when this Item was clicked in a {@link de.greensurvivors.greenui.menu.ui.Menu}.
      * As a MenuItem we probably want to do something, like open a menu
      *
      * @param event the click event that was called

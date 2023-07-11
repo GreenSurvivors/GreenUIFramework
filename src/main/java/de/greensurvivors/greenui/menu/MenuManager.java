@@ -35,7 +35,7 @@ public class MenuManager implements Listener {
     }
 
     @EventHandler
-    public void onOpenMenu(OpenGreenUIEvent event) {
+    private void onOpenMenu(OpenGreenUIEvent event) {
         activeMenus.computeIfAbsent(event.getViewer(), k -> new Stack<>());
         Stack<Menu> menuStack = activeMenus.get(event.getViewer());
 
@@ -74,8 +74,9 @@ public class MenuManager implements Listener {
     @EventHandler(ignoreCancelled = true)
     private void onClickMenu(final InventoryClickEvent event) {
         UUID playerId = event.getWhoClicked().getUniqueId();
-        if (!activeMenus.containsKey(playerId))
+        if (!activeMenus.containsKey(playerId)) {
             return;
+        }
 
         Menu menu = activeMenus.get(playerId).peek();
 
@@ -84,7 +85,8 @@ public class MenuManager implements Listener {
 
             if (event.getWhoClicked() instanceof Player player) {
                 // I have no idea why InventoryClickEvent encourages to call this while the method itself doesn't,
-                // however calling this should do no harm
+                // however calling this should do no harm and in most cases we want changed the inventory anyway
+                //todo test if necessary
                 player.updateInventory();
             }
         }

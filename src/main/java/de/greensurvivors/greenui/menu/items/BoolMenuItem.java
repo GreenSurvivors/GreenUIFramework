@@ -2,6 +2,7 @@ package de.greensurvivors.greenui.menu.items;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
@@ -20,35 +21,58 @@ import java.util.function.Consumer;
  */
 public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     // material to display both possible states
-    protected final static @NotNull ItemStack TRUE_STACK = new ItemStack(Material.LIME_CONCRETE, 1);
-    protected final static @NotNull ItemStack FALSE_STACK = new ItemStack(Material.RED_CONCRETE, 1);
+    protected @NotNull ItemStack trueStack; //todo getter, setter
+    protected @NotNull ItemStack falseStack;
     // called whenever the state changes
     protected @NotNull Consumer<@NotNull Boolean> boolConsumer;
     // the state this item is in
     protected boolean stateNow;
 
     public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
+        this(plugin, name, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
+    }
+
+    public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
         super(plugin);
 
         this.boolConsumer = boolConsumer;
         this.stateNow = startingValue;
+        this.trueStack = trueStack;
+        this.falseStack = falseStack;
 
-        //set up meta for both sides
-        ItemMeta meta = TRUE_STACK.getItemMeta();
+        updateState();
+    }
+
+    /**
+     * create a default representation how "true" should look.
+     */
+    protected static @NotNull ItemStack makeDefaultTrue(@Nullable Component name) {
+        ItemStack result = new ItemStack(Material.LIME_CONCRETE, 1);
+
+        ItemMeta meta = result.getItemMeta();
         meta.lore(List.of(Component.text("true").color(NamedTextColor.GREEN)));
         if (name != null) {
             meta.displayName(name);
         }
-        TRUE_STACK.setItemMeta(meta);
+        result.setItemMeta(meta);
 
-        meta = FALSE_STACK.getItemMeta();
+        return result;
+    }
+
+    /**
+     * create a default representation how "false" should look.
+     */
+    protected static @NotNull ItemStack makeDefaultFalse(@Nullable Component name) {
+        ItemStack result = new ItemStack(Material.LIME_CONCRETE, 1);
+
+        ItemMeta meta = result.getItemMeta();
         meta.lore(List.of(Component.text("false").color(NamedTextColor.RED)));
         if (name != null) {
             meta.displayName(name);
         }
-        FALSE_STACK.setItemMeta(meta);
+        result.setItemMeta(meta);
 
-        updateState();
+        return result;
     }
 
     /**
@@ -88,14 +112,14 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
      * the display will reflect this change and the consumer will be called
      */
     protected void updateState() {
-        this.boolConsumer.accept(stateNow);
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.boolConsumer.accept(stateNow));
 
         if (this.stateNow) {
-            this.setType(TRUE_STACK.getType());
-            this.setItemMeta(TRUE_STACK.getItemMeta());
+            this.setType(trueStack.getType());
+            this.setItemMeta(trueStack.getItemMeta());
         } else {
-            this.setType(FALSE_STACK.getType());
-            this.setItemMeta(FALSE_STACK.getItemMeta());
+            this.setType(falseStack.getType());
+            this.setItemMeta(falseStack.getItemMeta());
         }
     }
 

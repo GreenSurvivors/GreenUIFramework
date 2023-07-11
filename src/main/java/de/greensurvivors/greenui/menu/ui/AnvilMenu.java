@@ -32,13 +32,21 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
-        super(plugin, title != null ?
-                        Bukkit.createInventory(null, InventoryType.ANVIL, title) :
-                        Bukkit.createInventory(null, InventoryType.ANVIL),
-                shouldReturnedTo, allowModifyNonMenuItems);
+        super(plugin, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems);
         this.itemConsumer = itemConsumer;
         this.startingText = startingText;
         this.title = title;
+    }
+
+    /**
+     * just a helper to make the constructor super() call look neater
+     */
+    protected static Inventory makeInv(@Nullable TextComponent title) {
+        if (title == null) {
+            return Bukkit.createInventory(null, InventoryType.ANVIL);
+        } else {
+            return Bukkit.createInventory(null, InventoryType.ANVIL, title);
+        }
     }
 
     /**
@@ -74,17 +82,19 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
      */
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getRawSlot() == Slots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
-            itemConsumer.accept(((AnvilInventory) inventory).getResult());
-        }
-
         super.onInventoryClick(event);
 
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.view.close());
+        if (event.getRawSlot() == MenuDefaults.TwoCraftSlots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
+            itemConsumer.accept(((AnvilInventory) inventory).getResult());
+
+            Bukkit.getScheduler().runTask(this.plugin, () -> this.view.close());
+            event.setCancelled(true);
+        }
     }
 
     /**
-     * set the item name the player starts with
+     * set the item name the player starts with.
+     * Please note: does nothing after the player has already opened this
      */
     public void setStartingText(@Nullable String newText) {
         this.startingText = newText;

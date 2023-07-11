@@ -23,10 +23,10 @@ public class ColorPickerMenu extends BasicMenu {
     //7 or bigger
     protected static final int HUE_AMOUNT = 25;
     protected final @NotNull ColorHolderMenuItem[] hueItems = new ColorHolderMenuItem[HUE_AMOUNT];
-    // you can scroll through the hue items and this is the index we are in right now
-    protected int scrollIndex = 0;
     // called whenever the user chooses a color
     protected final @NotNull Consumer<TextColor> result;
+    // you can scroll through the hue items and this is the index we are in right now
+    protected int scrollIndex = 0;
 
     public ColorPickerMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, @NotNull Consumer<TextColor> result) {
         this(plugin, shouldReturnToParent, false, null, 6, result);

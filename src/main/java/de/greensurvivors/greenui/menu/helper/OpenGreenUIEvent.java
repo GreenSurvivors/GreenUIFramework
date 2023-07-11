@@ -12,13 +12,17 @@ import java.util.UUID;
  * The {@link de.greensurvivors.greenui.menu.MenuManager} listens to this event to keep track witch player has what menu open
  */
 public class OpenGreenUIEvent extends Event {
-    private final @NotNull HandlerList handlers = new HandlerList();
+    private static final @NotNull HandlerList handlers = new HandlerList();
     private final @NotNull UUID viewer;
     private @NotNull Menu menu;
 
     public OpenGreenUIEvent(@NotNull UUID viewer, @NotNull Menu menu) {
         this.viewer = viewer;
         this.menu = menu;
+    }
+
+    public static @NotNull HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override

@@ -70,7 +70,7 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
      */
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getRawSlot() >= inventory.getSize()) {
+        if (event.getRawSlot() < inventory.getSize()) {
             if (inventory.getItem(event.getSlot()) instanceof BasicMenuItem menuItem) {
                 menuItem.onClick(event);
             } else if (!this.allowModifyNonMenuItems) {

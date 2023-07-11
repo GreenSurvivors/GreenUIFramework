@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Menu extends Cloneable { //todo permission checks and disabling of menu items if necessary
+public interface Menu extends Cloneable {
     /**
      * initialises all important stuff that has to be done,
      * and opens the menu inventory for the player
