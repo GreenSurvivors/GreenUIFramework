@@ -1,8 +1,8 @@
-package de.greensurvivors.greenplugin;
+package de.greensurvivors.greenui;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class GreenPlugin extends JavaPlugin {
+public class GreenUIFramework extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
