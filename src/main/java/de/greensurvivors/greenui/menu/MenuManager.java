@@ -2,6 +2,7 @@ package de.greensurvivors.greenui.menu;
 
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
+import de.greensurvivors.greenui.menu.ui.TradeMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -10,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
@@ -44,6 +46,29 @@ public class MenuManager implements Listener {
 
         // add to stack
         menuStack.push(event.getMenu());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    private void onTradeSelect(TradeSelectEvent event) {
+        UUID playerId = event.getWhoClicked().getUniqueId();
+        if (!activeMenus.containsKey(playerId)) {
+            return;
+        }
+
+        Menu menu = activeMenus.get(playerId).peek();
+
+        if (menu instanceof TradeMenu tradeMenu) {
+            tradeMenu.onTradeSelect(event);
+
+            if (event.getWhoClicked() instanceof Player player) {
+                // I have no idea why InventoryClickEvent encourages to call this while the method itself doesn't,
+                // however calling this should do no harm and in most cases we want changed the inventory anyway
+                //todo test if necessary
+                player.updateInventory();
+            }
+        } else {
+            // todo mayday! we are out of sync!
+        }
     }
 
     @EventHandler(ignoreCancelled = true)

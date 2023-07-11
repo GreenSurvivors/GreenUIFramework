@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.menu.helper.MenuDefaults;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -9,6 +10,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -96,21 +98,5 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
         clone.startingText = startingText;
 
         return clone;
-    }
-
-    public enum Slots {
-        LEFT(0),
-        RIGHT(1),
-        RESULT(2);
-
-        private final int id;
-
-        Slots(int id) {
-            this.id = id;
-        }
-
-        public int getId() {
-            return id;
-        }
     }
 }

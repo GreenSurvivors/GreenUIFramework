@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.meta.ColorableArmorMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +54,17 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT ->
                     Bukkit.getScheduler().runTask(this.plugin, () -> this.colorConsumer.accept(this.color));
         }
+    }
+
+    /**
+     * called when a {@link de.greensurvivors.greenui.menu.recipes} Merchant recipe was clicked this item was part of
+     * As a MenuItem we probably want to do something, like open a menu
+     *
+     * @param event the click event that was called
+     */
+    public void onTradeSelect(@NotNull TradeSelectEvent event) {
+        super.onTradeSelect(event);
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.colorConsumer.accept(this.color));
     }
 
     /**

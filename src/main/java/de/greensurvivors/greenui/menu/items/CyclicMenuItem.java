@@ -4,6 +4,7 @@ import de.greensurvivors.greenui.menu.helper.ItemStackInfo;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -93,6 +94,20 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
             case DOUBLE_CLICK -> {
             } //todo let the player write the name of option
         }
+        updateDisplay();
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
+    }
+
+    /**
+     * called when a {@link de.greensurvivors.greenui.menu.recipes} Merchant recipe was clicked this item was part of
+     * As a MenuItem we probably want to do something, like open a menu
+     *
+     * @param event the click event that was called
+     */
+    public void onTradeSelect(@NotNull TradeSelectEvent event) {
+        super.onTradeSelect(event);
+
+        index = modInfosIndex(++index);
         updateDisplay();
         Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
     }

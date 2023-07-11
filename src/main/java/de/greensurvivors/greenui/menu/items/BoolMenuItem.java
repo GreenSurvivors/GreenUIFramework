@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -63,6 +64,21 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
         switch (event.getClick()) {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT -> this.stateNow = !this.stateNow;
         }
+        // consumer is called whenever the state gets updated
+        updateState();
+    }
+
+    /**
+     * called when a {@link de.greensurvivors.greenui.menu.recipes} Merchant recipe was clicked this item was part of
+     * As a MenuItem we probably want to do something, like open a menu
+     *
+     * @param event the click event that was called
+     */
+    public void onTradeSelect(@NotNull TradeSelectEvent event) {
+        super.onTradeSelect(event);
+
+        this.stateNow = !this.stateNow;
+
         // consumer is called whenever the state gets updated
         updateState();
     }

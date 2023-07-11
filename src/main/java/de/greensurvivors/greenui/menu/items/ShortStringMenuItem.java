@@ -38,7 +38,7 @@ public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
 
         this.stringConsumer = stringConsumer;
 
-        super.menuToOpen.setItem(new BasicMenuItem(this.plugin, Material.PAPER), AnvilMenu.Slots.LEFT.getId());
+        super.menuToOpen.setItem(new BasicMenuItem(this.plugin, Material.PAPER), MenuDefaults.TwoCraftSlots.LEFT.getId());
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuDefaults.getSaveMaterial());
@@ -46,7 +46,7 @@ public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
         meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
         saveButton.setItemMeta(meta);
 
-        super.menuToOpen.setItem(saveButton, AnvilMenu.Slots.RESULT.getId());
+        super.menuToOpen.setItem(saveButton, MenuDefaults.TwoCraftSlots.RESULT.getId());
     }
 
     @Override

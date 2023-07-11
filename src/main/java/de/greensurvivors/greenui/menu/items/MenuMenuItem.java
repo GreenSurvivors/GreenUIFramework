@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,17 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
                     this.plugin, () -> (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent()
             );
         }
+    }
+
+    /**
+     * called when a {@link de.greensurvivors.greenui.menu.recipes} Merchant recipe was clicked this item was part of
+     * As a MenuItem we probably want to do something, like open a menu
+     *
+     * @param event the click event that was called
+     */
+    public void onTradeSelect(@NotNull TradeSelectEvent event) {
+        super.onTradeSelect(event);
+        Bukkit.getScheduler().runTask(this.plugin, () -> (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent());
     }
 
     @Override

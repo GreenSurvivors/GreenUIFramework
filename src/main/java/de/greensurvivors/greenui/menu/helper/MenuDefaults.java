@@ -59,4 +59,21 @@ public class MenuDefaults {
     public static Material getFilterMaterial() {
         return Material.SPYGLASS;
     }
+
+
+    public enum TwoCraftSlots {
+        LEFT(0),
+        RIGHT(1),
+        RESULT(2);
+
+        private final int id;
+
+        TwoCraftSlots(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
 }
