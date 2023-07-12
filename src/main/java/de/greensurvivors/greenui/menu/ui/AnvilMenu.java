@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * please note: in order to edit the ItemName in {@link Slots#RESULT} there has to be an item in {@link Slots#LEFT},
+ * please note: in order to edit the ItemName in {@link MenuDefaults.TwoCraftSlots#RESULT} there has to be an item in {@link MenuDefaults.TwoCraftSlots#LEFT},
  * AnvilMenu will add a paper itself, if a startingText was given
  */
 public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {

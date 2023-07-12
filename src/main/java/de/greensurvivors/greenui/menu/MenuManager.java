@@ -4,6 +4,7 @@ import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import de.greensurvivors.greenui.menu.ui.TradeMenu;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -67,7 +68,7 @@ public class MenuManager implements Listener {
                 player.updateInventory();
             }
         } else {
-            // todo mayday! we are out of sync!
+            // todo -> mayday! we are out of sync!
         }
     }
 
@@ -93,7 +94,7 @@ public class MenuManager implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onDragMenu(final InventoryDragEvent event) {/* //todo
+    private void onDragMenu(final InventoryDragEvent event) { //todo
         UUID playerId = event.getWhoClicked().getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;
@@ -102,11 +103,15 @@ public class MenuManager implements Listener {
 
         // I'm not dealing with something that may output a new Material for every slot
         // todo
-        if (event.getOldCursor().getType() == Material.BUNDLE){
+        if (event.getOldCursor().getType() == Material.BUNDLE) {
             event.setCancelled(true);
             return;
         }
 
+        //temp until the rest is working
+        event.setCancelled(true);
+
+        /*
         //contains the getResultItem as if one had put every item one by one into the menu, key is raw
         HashMap<Integer, InventoryClickEvent> resultHashMap = new HashMap<>(event.getRawSlots().size());
         //contains how many items went into this raw slot
