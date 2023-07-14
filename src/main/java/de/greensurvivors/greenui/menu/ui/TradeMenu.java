@@ -1,11 +1,15 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.MenuManager;
+import de.greensurvivors.greenui.menu.helper.DirectIntractable;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import de.greensurvivors.greenui.menu.recipes.BasicMenuRecipe;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -28,16 +32,17 @@ import java.util.List;
  * opens the inventory again.
  */
 public class TradeMenu implements Menu, Cloneable {
-    protected boolean shouldReturnedTo;
-    protected boolean allowModifyNonMenuItems;
-    //used to update titles
-    protected InventoryView view;
-    protected @NotNull Plugin plugin;
-    protected @Nullable TextComponent title;
     protected @NotNull List<@NotNull MerchantRecipe> recipes;
     protected @NotNull Merchant merchant;
-
     protected Inventory inventory;
+    protected boolean shouldReturnedTo;
+    protected boolean allowModifyNonMenuItems;
+    protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;
+    //used to update titles
+    protected InventoryView view;
+    protected @Nullable TextComponent title;
+    protected @NotNull Plugin plugin;
+    protected @Nullable DirectIntractable intractableWaiting;
 
     public TradeMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
         this(plugin, shouldReturnedTo, allowModifyNonMenuItems, null, List.of());
@@ -70,15 +75,17 @@ public class TradeMenu implements Menu, Cloneable {
     @Override
     public void open(@NotNull HumanEntity player) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
+            // reset closing result
+            this.closingResult = MenuUtils.MenuClosingResult.CLOSE;
+
             this.view = player.openMerchant(this.merchant, true);
 
             if (view != null) {
                 // map items
-                Arrays.stream(MenuDefaults.TwoCraftSlots.values()).forEach(slot -> this.inventory.setItem(slot.getId(), this.inventory.getItem(slot.getId())));
+                Arrays.stream(MenuUtils.TwoCraftSlots.values()).forEach(slot -> this.inventory.setItem(slot.getId(), this.inventory.getItem(slot.getId())));
 
                 // change inventory to be the correct one.
                 this.inventory = view.getTopInventory();
-
 
                 if (this.title != null) {
                     this.view.setTitle(title.content()); // why just string?!
@@ -91,11 +98,11 @@ public class TradeMenu implements Menu, Cloneable {
     /**
      * cleanup at the moment before the menu inventory gets closed
      *
-     * @return true if the inventory should be forced to stay open aka reopen
+     * @return {@link MenuUtils.MenuClosingResult#STAY_OPEN} if the inventory should be forced to stay open aka reopen
      */
     @Override
-    public boolean onClose() {
-        return false;
+    public @NotNull MenuUtils.MenuClosingResult onClose() {
+        return closingResult;
     }
 
     /**
@@ -113,6 +120,57 @@ public class TradeMenu implements Menu, Cloneable {
             }
         } else {
             event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Event-handler when the menu is closed right now and awaits player input
+     * The input given by this event is provided by clicking a block.
+     *
+     * @param block the interacted block
+     * @return true, if the menu accepts the clicked block as input
+     * Note: This doesn't necessarily mean the input is valid,
+     * but it is feedback for {@link MenuManager}
+     * to reopen this menu.
+     */
+    @Override
+    public boolean onBlockInteract(@NotNull Block block) {
+        return false;
+    }
+
+    /**
+     * Event-handler when the menu is closed right now and awaits player input
+     * The input given by this event is provided by writing a message into chat.
+     *
+     * @param message the chat message
+     * @return true, if the menu accepts the message as input
+     * Note: This doesn't necessarily mean the input is valid,
+     * but it is feedback for {@link MenuManager}
+     * to reopen this menu.
+     */
+    @Override
+    public boolean onChat(@NotNull Component message) {
+        return false;
+    }
+
+    /**
+     * This tells the intractable to stop waiting for direct input
+     */
+    @Override
+    public void cancel() {
+        if (this.intractableWaiting != null) {
+            this.intractableWaiting.cancel();
+        }
+    }
+
+    /**
+     * closes the open InventoryView of this menu
+     * Note: don't call this directly on events, use {@link org.bukkit.scheduler.BukkitScheduler#runTask(Plugin, Runnable)}
+     */
+    @Override
+    public void close() {
+        if (this.view != null) {
+            this.view.close();
         }
     }
 
@@ -187,6 +245,33 @@ public class TradeMenu implements Menu, Cloneable {
     @Override
     public boolean shouldReturnedTo() {
         return shouldReturnedTo;
+    }
+
+    /**
+     * get if non MenuItems are allowed to be interacted with
+     */
+    @Override
+    public boolean allowModifyNonMenuItems() {
+        return this.allowModifyNonMenuItems;
+    }
+
+    /**
+     * Some MenuItems implement {@link DirectIntractable} and want to get direct input from the player.
+     * In order to not relay the data from DirectIntractable to every item, the one that listens right now has to be registered.
+     *
+     * @param intractable a MenuItem implementing DirectIntractable
+     */
+    @Override
+    public void setDirectListener(DirectIntractable intractable) {
+        this.intractableWaiting = intractable;
+    }
+
+    /**
+     * set how the Menu should respond to getting closed
+     */
+    @Override
+    public void setClosingResult(@NotNull MenuUtils.MenuClosingResult closingResult) {
+        this.closingResult = closingResult;
     }
 
     /**

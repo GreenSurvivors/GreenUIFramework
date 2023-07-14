@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * please note: in order to edit the ItemName in {@link MenuDefaults.TwoCraftSlots#RESULT} there has to be an item in {@link MenuDefaults.TwoCraftSlots#LEFT},
+ * please note: in order to edit the ItemName in {@link MenuUtils.TwoCraftSlots#RESULT} there has to be an item in {@link MenuUtils.TwoCraftSlots#LEFT},
  * AnvilMenu will add a paper itself, if a startingText was given
  */
 public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
@@ -36,17 +36,6 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
         this.itemConsumer = itemConsumer;
         this.startingText = startingText;
         this.title = title;
-    }
-
-    /**
-     * just a helper to make the constructor super() call look neater
-     */
-    protected static Inventory makeInv(@Nullable TextComponent title) {
-        if (title == null) {
-            return Bukkit.createInventory(null, InventoryType.ANVIL);
-        } else {
-            return Bukkit.createInventory(null, InventoryType.ANVIL, title);
-        }
     }
 
     /**
@@ -75,6 +64,17 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     /**
+     * just a helper to make the constructor super() call look neater
+     */
+    protected static Inventory makeInv(@Nullable TextComponent title) {
+        if (title == null) {
+            return Bukkit.createInventory(null, InventoryType.ANVIL);
+        } else {
+            return Bukkit.createInventory(null, InventoryType.ANVIL, title);
+        }
+    }
+
+    /**
      * Event-handler when something gets clicked in the menu
      * in case the result slot gets clicked, the result item is deemed to be accepted and the menu closes
      *
@@ -84,7 +84,7 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     public void onInventoryClick(InventoryClickEvent event) {
         super.onInventoryClick(event);
 
-        if (event.getRawSlot() == MenuDefaults.TwoCraftSlots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
+        if (event.getRawSlot() == MenuUtils.TwoCraftSlots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
             itemConsumer.accept(((AnvilInventory) inventory).getResult());
 
             Bukkit.getScheduler().runTask(this.plugin, () -> this.view.close());

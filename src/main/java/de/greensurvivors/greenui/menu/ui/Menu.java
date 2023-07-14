@@ -1,12 +1,15 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.menu.helper.DirectIntractable;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Menu extends Cloneable {
+public interface Menu extends DirectIntractable, Cloneable {
     /**
      * initialises all important stuff that has to be done,
      * and opens the menu inventory for the player
@@ -18,9 +21,9 @@ public interface Menu extends Cloneable {
     /**
      * cleanup at the moment before the menu inventory gets closed
      *
-     * @return true if the inventory should be forced to stay open aka reopen
+     * @return {@link MenuUtils.MenuClosingResult#STAY_OPEN} if the inventory should be forced to stay open aka reopen
      */
-    boolean onClose();
+    @NotNull MenuUtils.MenuClosingResult onClose();
 
     /**
      * Event-handler when something gets clicked in the menu
@@ -28,6 +31,12 @@ public interface Menu extends Cloneable {
      * @param event the click event that was called
      */
     void onInventoryClick(InventoryClickEvent event);
+
+    /**
+     * closes the open InventoryView of this menu
+     * Note: don't call this directly on InventoryInteract Events, use {@link org.bukkit.scheduler.BukkitScheduler#runTask(Plugin, Runnable)}
+     */
+    void close();
 
     /**
      * set a (menu) item at the slot, replacing whatever items was there before
@@ -55,9 +64,27 @@ public interface Menu extends Cloneable {
     boolean shouldReturnedTo();
 
     /**
+     * get if non MenuItems are allowed to be interacted with
+     */
+    boolean allowModifyNonMenuItems();
+
+    /**
+     * Some MenuItems implement {@link DirectIntractable} and want to get direct input from the player.
+     * In order to not relay the data from DirectIntractable to every item, the one that listens right now has to be registered.
+     *
+     * @param intractable a MenuItem implementing DirectIntractable
+     */
+    void setDirectListener(DirectIntractable intractable);
+
+    /**
+     * set how the Menu should respond to getting closed
+     */
+    void setClosingResult(MenuUtils.MenuClosingResult closingResult);
+
+    /**
      * @return returns if the inventory(/ies) is(/are) empty
      */
     boolean isEmpty();
 
-    Menu clone();
+    @NotNull Menu clone();
 }

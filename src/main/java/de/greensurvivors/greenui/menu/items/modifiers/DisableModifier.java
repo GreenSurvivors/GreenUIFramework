@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items.modifiers;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * This Modifier can be disabled and doesn't response to {@link BasicMenuItem#onClick(InventoryClickEvent)} and {@link BasicMenuItem#onTradeSelect(TradeSelectEvent)} anymore.
  * The (de)activation has to be done manually by calling {@link DisableModifier#setActiveStat(boolean)} and will never change on its own.
- * If in deactive State this Modifier changes its Material to {@link MenuDefaults#getDisabledMaterial()} to reflect the change.
+ * If in deactive State this Modifier changes its Material to {@link MenuUtils#getDisabledMaterial()} to reflect the change.
  */
 public class DisableModifier<E extends BasicMenuItem> extends BasicModifier<E> implements Cloneable {
     protected boolean active;
@@ -67,7 +67,7 @@ public class DisableModifier<E extends BasicMenuItem> extends BasicModifier<E> i
         if (active) {
             this.setType(menuItem.getType());
         } else {
-            this.setType(MenuDefaults.getDisabledMaterial());
+            this.setType(MenuUtils.getDisabledMaterial());
         }
     }
 

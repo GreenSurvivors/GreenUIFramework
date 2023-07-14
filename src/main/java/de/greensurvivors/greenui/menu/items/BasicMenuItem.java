@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,10 +23,10 @@ public class BasicMenuItem extends ItemStack implements Cloneable {
     protected @NotNull Plugin plugin;
 
     /**
-     * new basic menu item, defaults to {@link MenuDefaults#getFillerMaterial()}
+     * new basic menu item, defaults to {@link MenuUtils#getFillerMaterial()}
      */
     public BasicMenuItem(@NotNull Plugin plugin) {
-        super(MenuDefaults.getFillerMaterial());
+        super(MenuUtils.getFillerMaterial());
         this.plugin = plugin;
     }
 

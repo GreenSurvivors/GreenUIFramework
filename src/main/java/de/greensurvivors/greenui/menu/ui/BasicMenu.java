@@ -33,7 +33,7 @@ public class BasicMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     @Override
-    public BasicMenu clone() {
+    public @NotNull BasicMenu clone() {
         return (BasicMenu) super.clone();
     }
 }

@@ -1,11 +1,14 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.MenuManager;
+import de.greensurvivors.greenui.menu.helper.DirectIntractable;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.items.RunnableMenuItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryView;
@@ -30,7 +33,9 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
     //used to update titles
     protected @Nullable InventoryView view = null;
     protected @NotNull Plugin plugin;
+    protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;
     protected int openPage = 0;
+    protected @Nullable DirectIntractable intractableWaiting = null;
 
     public BasicMultiPageMenu(@NotNull Plugin plugin, boolean shouldReturnToParent) {
         this(plugin, shouldReturnToParent, false, null, 6);
@@ -51,6 +56,8 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
      * @param player the player who will see this menu
      */
     public void open(@NotNull HumanEntity player) {
+        closingResult = MenuUtils.MenuClosingResult.CLOSE;
+
         this.open(player, 0);
     }
 
@@ -67,13 +74,13 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
         BasicMenu menu = pages.get(rangedPageNumber);
 
         if (rangedPageNumber > 0) {
-            menu.setItem(new RunnableMenuItem(this.plugin, MenuDefaults.getPageMaterial(), rangedPageNumber /* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
+            menu.setItem(new RunnableMenuItem(this.plugin, MenuUtils.getPageMaterial(), rangedPageNumber /* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
                 this.open(player, rangedPageNumber - 1);
             }), getSize() - 9 - 1);
         }
 
         if (rangedPageNumber < pages.size()) {
-            menu.setItem(new RunnableMenuItem(this.plugin, MenuDefaults.getPageMaterial(), rangedPageNumber + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
+            menu.setItem(new RunnableMenuItem(this.plugin, MenuUtils.getPageMaterial(), rangedPageNumber + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
                 this.open(player, rangedPageNumber + 1);
             }), getSize() - 1);
         }
@@ -89,11 +96,11 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
     /**
      * cleanup at the moment before the menu inventory gets closed
      *
-     * @return true if the inventory should be forced to stay open aka reopen
+     * @return {@link MenuUtils.MenuClosingResult#STAY_OPEN} if the inventory should be forced to stay open aka reopen
      */
     @Override
-    public boolean onClose() {
-        return false;
+    public @NotNull MenuUtils.MenuClosingResult onClose() {
+        return closingResult;
     }
 
     /**
@@ -105,6 +112,67 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
     @Override
     public void onInventoryClick(InventoryClickEvent event) {
         pages.get(this.openPage).onInventoryClick(event);
+    }
+
+    /**
+     * Event-handler when the menu is closed right now and awaits player input
+     * The input given by this event is provided by clicking a block.
+     *
+     * @param block the interacted block
+     * @return true, if the menu accepts the clicked block as input
+     * Note: This doesn't necessarily mean the input is valid,
+     * but it is feedback for {@link MenuManager}
+     * to reopen this menu.
+     */
+    @Override
+    public boolean onBlockInteract(@NotNull Block block) {
+        if (intractableWaiting != null) {
+            return intractableWaiting.onBlockInteract(block);
+        } else {
+            // just accept it to get reopened
+            return true;
+        }
+    }
+
+    /**
+     * Event-handler when the menu is closed right now and awaits player input
+     * The input given by this event is provided by writing a message into chat.
+     *
+     * @param message the chat message
+     * @return true, if the menu accepts the message as input
+     * Note: This doesn't necessarily mean the input is valid,
+     * but it is feedback for {@link MenuManager}
+     * to reopen this menu.
+     */
+    @Override
+    public boolean onChat(@NotNull Component message) {
+        if (intractableWaiting != null) {
+            return intractableWaiting.onChat(message);
+        } else {
+            // just accept it to get reopened
+            return true;
+        }
+    }
+
+    /**
+     * This tells the intractable to stop waiting for direct input
+     */
+    @Override
+    public void cancel() {
+        if (this.intractableWaiting != null) {
+            this.intractableWaiting.cancel();
+        }
+    }
+
+    /**
+     * closes the open InventoryView of this menu
+     * Note: don't call this directly on events, use {@link org.bukkit.scheduler.BukkitScheduler#runTask(Plugin, Runnable)}
+     */
+    @Override
+    public void close() {
+        if (this.view != null) {
+            this.view.close();
+        }
     }
 
     /**
@@ -264,6 +332,33 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
     }
 
     /**
+     * get if non MenuItems are allowed to be interacted with
+     */
+    @Override
+    public boolean allowModifyNonMenuItems() {
+        return this.allowModifyNonMenuItems;
+    }
+
+    /**
+     * Some MenuItems implement {@link DirectIntractable} and want to get direct input from the player.
+     * In order to not relay the data from DirectIntractable to every item, the one that listens right now has to be registered.
+     *
+     * @param intractable a MenuItem implementing DirectIntractable
+     */
+    @Override
+    public void setDirectListener(@NotNull DirectIntractable intractable) {
+        this.intractableWaiting = intractable;
+    }
+
+    /**
+     * set how the Menu should respond to getting closed
+     */
+    @Override
+    public void setClosingResult(@NotNull MenuUtils.MenuClosingResult closingResult) {
+        this.closingResult = closingResult;
+    }
+
+    /**
      * @return returns if all inventories are completely empty
      */
     @Override
@@ -305,13 +400,13 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
                 BasicMenu menu = pages.get(openPage);
 
                 if (this.openPage > 0) {
-                    menu.setItem(new RunnableMenuItem(this.plugin, MenuDefaults.getPageMaterial(), this.openPage/* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
+                    menu.setItem(new RunnableMenuItem(this.plugin, MenuUtils.getPageMaterial(), this.openPage/* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
                         this.open(player, this.openPage - 1);
                     }), getSize() - 9 - 1);
                 }
 
                 if (this.openPage < pages.size()) {
-                    menu.setItem(new RunnableMenuItem(this.plugin, MenuDefaults.getPageMaterial(), this.openPage + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
+                    menu.setItem(new RunnableMenuItem(this.plugin, MenuUtils.getPageMaterial(), this.openPage + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
                         this.open(player, this.openPage + 1);
                     }), getSize() - 1);
                 }

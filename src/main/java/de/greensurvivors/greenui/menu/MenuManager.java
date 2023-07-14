@@ -3,6 +3,7 @@ package de.greensurvivors.greenui.menu;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import de.greensurvivors.greenui.menu.ui.TradeMenu;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -13,21 +14,27 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * keeps track of all open GreenUIs and keeps them working by providing event calls
  */
 public class MenuManager implements Listener {
+    private final static long REOPEN_TICKS = 20 /* Ticks*/ * 60;
+
     private final Plugin plugin;
     // Stores all currently open inventories by all players, using a stack system we can easily add or remove child inventories.
     private final HashMap<UUID, Stack<Menu>> activeMenus = new HashMap<>();
+    private final HashMap<Menu, BukkitTask> reopeningMenus = new HashMap<>();
 
     public MenuManager(Plugin plugin) {
         this.plugin = plugin;
@@ -35,8 +42,8 @@ public class MenuManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    @EventHandler
-    private void onOpenMenu(OpenGreenUIEvent event) {
+    @EventHandler(ignoreCancelled = true)
+    private void onOpenMenu(final OpenGreenUIEvent event) {
         activeMenus.computeIfAbsent(event.getViewer(), k -> new Stack<>());
         Stack<Menu> menuStack = activeMenus.get(event.getViewer());
 
@@ -50,7 +57,7 @@ public class MenuManager implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onTradeSelect(TradeSelectEvent event) {
+    private void onTradeSelect(final TradeSelectEvent event) {
         UUID playerId = event.getWhoClicked().getUniqueId();
         if (!activeMenus.containsKey(playerId)) {
             return;
@@ -94,7 +101,7 @@ public class MenuManager implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onDragMenu(final InventoryDragEvent event) { //todo
+    private void onDragMenu(final InventoryDragEvent event) {
         UUID playerId = event.getWhoClicked().getUniqueId();
         if (!activeMenus.containsKey(playerId))
             return;
@@ -108,65 +115,10 @@ public class MenuManager implements Listener {
             return;
         }
 
-        //temp until the rest is working
-        event.setCancelled(true);
-
-        /*
-        //contains the getResultItem as if one had put every item one by one into the menu, key is raw
-        HashMap<Integer, InventoryClickEvent> resultHashMap = new HashMap<>(event.getRawSlots().size());
-        //contains how many items went into this raw slot
-        HashMap<Integer, Integer> changePerSlot = new HashMap<>(event.getRawSlots().size());
-
-        ItemStack newCursor = event.getCursor();
-
-        for (int slot : event.getRawSlots()){
-            if (slot < menu.getSize()){
-                ItemStack oldItem = event.getView().getItem(slot);
-                ItemStack changingItem = event.getNewItems().get(slot).clone();
-
-                if (oldItem != null && oldItem.getType() == changingItem.getType()){
-                    changingItem = changingItem.add(-oldItem.getAmount());
-                }
-
-                changePerSlot.put(slot, changingItem.getAmount());
-
-                InventoryClickEvent newEvent = new InventoryClickEvent(event.getView(), event.getView().getSlotType(slot), slot, ClickType.LEFT, event.getType() == DragType.SINGLE ? InventoryAction.PLACE_ONE : InventoryAction.PLACE_SOME);
-                menu.onInventoryClick(newEvent);
-                resultHashMap.put(slot, newEvent);
-            }
-        }
-
-        boolean cancled = true;
-        for (Map.Entry<Integer, InventoryClickEvent> entry : resultHashMap.entrySet()){
-            if (entry.getValue().isCancelled()){ //don't get fooled this is another event
-                changePerSlot.get(entry.getKey());
-
-                if (newCursor == null){
-                    newCursor = event.getNewItems().get(entry.getKey()).clone();
-                    newCursor.setAmount(0);
-                }
-
-                newCursor.add(changePerSlot.get(entry.getKey()));
-                event.getRawSlots().remove(entry.getKey());
-            } else {
-                cancled = false;
-            }
-
-            if (entry.getValue().getCurrentItem() != null) {
-                event.getNewItems().put(entry.getKey(), entry.getValue().getCurrentItem());
-            }
-        }
-
-        event.setCursor(newCursor);
-        if (cancled){
+        if (menu != null && event.getRawSlots().stream().anyMatch(slotId -> slotId < menu.getSize()) && !menu.allowModifyNonMenuItems()) {
+            //todo
             event.setCancelled(true);
         }
-
-        if (event.getWhoClicked() instanceof Player player){
-            // I have no idea why InventoryDragEvent encourages to call this while the method itself doesn't,
-            // however calling this should do no harm
-            player.updateInventory();
-        }*/
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -180,20 +132,80 @@ public class MenuManager implements Listener {
         final Inventory inv = event.getInventory();
         final UUID uuid = event.getPlayer().getUniqueId();
 
-        if (menu.onClose()) {
+        switch (menu.onClose()) {
+            case CLOSE -> activeMenus.get(uuid).pop(); //successfully closed
             // the menu wants to stay open
             // wait for the event to pass to reopen the inventory
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            case STAY_OPEN -> Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 Player player = Bukkit.getPlayer(uuid);
 
                 if (player != null) {
                     player.openInventory(inv);
                 }
-
             }, 0);
-        } else {
-            //successfully closed
-            activeMenus.get(uuid).pop();
+            case REOPEN_LATER -> {
+                BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin, () -> menu.open(event.getPlayer()), REOPEN_TICKS);
+                reopeningMenus.put(menu, task);
+                //todo feedback
+            }
+            default -> {
+                plugin.getLogger().log(Level.WARNING, "Unknown close result. How did we get here? Removing Menu from Stack anyway");
+                activeMenus.get(uuid).pop();
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    private void onBlockInteract(final PlayerInteractEvent event) {
+        UUID playerId = event.getPlayer().getUniqueId();
+        if (!activeMenus.containsKey(playerId) || !event.hasBlock()) {
+            return;
+        }
+
+        Menu menu = activeMenus.get(playerId).peek();
+
+        if (menu != null) {
+            BukkitTask task = reopeningMenus.get(menu);
+
+            if (task != null) {
+                if (menu.onBlockInteract(event.getClickedBlock())) {
+                    // don't interact with anything, just observe!
+                    event.setCancelled(true);
+
+                    // reopen and cancel task that would do that for us
+                    menu.open(event.getPlayer());
+                    task.cancel();
+                }
+            } else {
+                // todo: error, we are out of sync!
+            }
+        }
+    }
+
+    @EventHandler
+    private void onChat(final AsyncChatEvent event) {
+        UUID playerId = event.getPlayer().getUniqueId();
+        if (!activeMenus.containsKey(playerId)) {
+            return;
+        }
+
+        Menu menu = activeMenus.get(playerId).peek();
+
+        if (menu != null) {
+            BukkitTask task = reopeningMenus.get(menu);
+
+            if (task != null) {
+                if (menu.onChat(event.message())) {
+                    // don't interact with anything, just observe!
+                    event.setCancelled(true);
+
+                    // reopen and cancel task that would do that for us
+                    menu.open(event.getPlayer());
+                    task.cancel();
+                }
+            } else {
+                // todo: error, we are out of sync!
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -29,24 +29,20 @@ public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
     public ShortStringMenuItem(@NotNull Plugin plugin, @NotNull Consumer<String> stringConsumer, @Nullable Component name, @Nullable List<Component> description, @NotNull Material displayMat, int amount, boolean shouldReturnToParent) {
         super(plugin, displayMat, amount, name, description,
                 new AnvilMenu(plugin, true, false, null, "",
-                        resultItemStack -> {
-                            if (resultItemStack != null) {
-                                stringConsumer.accept(PlainTextComponentSerializer.plainText().serialize(resultItemStack.displayName()));
-                            }
-                        }),
+                        resultItemStack -> stringConsumer.accept(PlainTextComponentSerializer.plainText().serialize(resultItemStack.displayName()))),
                 shouldReturnToParent);
 
         this.stringConsumer = stringConsumer;
 
-        super.menuToOpen.setItem(new BasicMenuItem(this.plugin, Material.PAPER), MenuDefaults.TwoCraftSlots.LEFT.getId());
+        super.menuToOpen.setItem(new BasicMenuItem(this.plugin, Material.PAPER), MenuUtils.TwoCraftSlots.LEFT.getId());
 
         //set displayname for save button
-        ItemStack saveButton = new ItemStack(MenuDefaults.getSaveMaterial());
+        ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
         meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
         saveButton.setItemMeta(meta);
 
-        super.menuToOpen.setItem(saveButton, MenuDefaults.TwoCraftSlots.RESULT.getId());
+        super.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
     }
 
     @Override

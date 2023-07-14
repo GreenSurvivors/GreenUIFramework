@@ -1,8 +1,13 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.menu.MenuManager;
+import de.greensurvivors.greenui.menu.helper.DirectIntractable;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -16,13 +21,15 @@ import org.jetbrains.annotations.Nullable;
  * most basic menu. You have to provide an Inventory yourself.
  */
 public class BasicCustomInvMenu implements Menu, Cloneable {
-    protected boolean shouldReturnedTo;
     protected @NotNull Inventory inventory;
+    protected boolean shouldReturnedTo;
     protected boolean allowModifyNonMenuItems;
+    protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;
     //used to update titles
-    protected InventoryView view;
-    protected @NotNull Plugin plugin;
+    protected @Nullable InventoryView view;
     protected @Nullable TextComponent title;
+    protected @NotNull Plugin plugin;
+    protected @Nullable DirectIntractable intractableWaiting = null;
 
     public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
         this(plugin, inventory, shouldReturnedTo, allowModifyNonMenuItems, null);
@@ -45,6 +52,9 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
     @Override
     public void open(@NotNull HumanEntity player) {
         Bukkit.getScheduler().runTask(this.plugin, () -> {
+            // reset closing result
+            closingResult = MenuUtils.MenuClosingResult.CLOSE;
+
             this.view = player.openInventory(this.inventory);
 
             if (this.view != null && this.title != null) {
@@ -56,11 +66,11 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
     /**
      * cleanup at the moment before the menu inventory gets closed
      *
-     * @return true if the inventory should be forced to stay open aka reopen
+     * @return {@link MenuUtils.MenuClosingResult#STAY_OPEN} if the inventory should be forced to stay open aka reopen
      */
     @Override
-    public boolean onClose() {
-        return false;
+    public @NotNull MenuUtils.MenuClosingResult onClose() {
+        return this.closingResult;
     }
 
     /**
@@ -76,8 +86,67 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
             } else if (!this.allowModifyNonMenuItems) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    /**
+     * Event-handler when the menu is closed right now and awaits player input
+     * The input given by this event is provided by clicking a block.
+     *
+     * @param block the interacted block
+     * @return true, if the menu accepts the clicked block as input
+     * Note: This doesn't necessarily mean the input is valid,
+     * but it is feedback for {@link MenuManager}
+     * to reopen this menu.
+     */
+    @Override
+    public boolean onBlockInteract(@NotNull Block block) {
+        if (intractableWaiting != null) {
+            return intractableWaiting.onBlockInteract(block);
         } else {
-            event.setCancelled(true);
+            // just accept it to get reopened
+            return true;
+        }
+    }
+
+    /**
+     * Event-handler when the menu is closed right now and awaits player input
+     * The input given by this event is provided by writing a message into chat.
+     *
+     * @param message the chat message
+     * @return true, if the menu accepts the message as input
+     * Note: This doesn't necessarily mean the input is valid,
+     * but it is feedback for {@link MenuManager}
+     * to reopen this menu.
+     */
+    @Override
+    public boolean onChat(@NotNull Component message) {
+        if (intractableWaiting != null) {
+            return intractableWaiting.onChat(message);
+        } else {
+            // just accept it to get reopened
+            return true;
+        }
+    }
+
+    /**
+     * This tells the intractable to stop waiting for direct input
+     */
+    @Override
+    public void cancel() {
+        if (this.intractableWaiting != null) {
+            this.intractableWaiting.cancel();
+        }
+    }
+
+    /**
+     * closes the open InventoryView of this menu
+     * Note: don't call this directly on events, use {@link org.bukkit.scheduler.BukkitScheduler#runTask(Plugin, Runnable)}
+     */
+    @Override
+    public void close() {
+        if (this.view != null) {
+            this.view.close();
         }
     }
 
@@ -141,6 +210,32 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     /**
+     * get if non MenuItems are allowed to be interacted with
+     */
+    @Override
+    public boolean allowModifyNonMenuItems() {
+        return this.allowModifyNonMenuItems;
+    }
+
+    /**
+     * Some MenuItems implement {@link DirectIntractable} and want to get direct input from the player.
+     * In order to not relay the data from DirectIntractable to every item, the one that listens right now has to be registered.
+     *
+     * @param intractable a MenuItem implementing DirectIntractable
+     */
+    @Override
+    public void setDirectListener(@NotNull DirectIntractable intractable) {
+        this.intractableWaiting = intractable;
+    }
+
+    /**
+     * @param closingResult
+     */
+    public void setClosingResult(MenuUtils.MenuClosingResult closingResult) {
+        this.closingResult = closingResult;
+    }
+
+    /**
      * @return returns if the inventory is empty
      */
     @Override
@@ -149,7 +244,7 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     @Override
-    public BasicCustomInvMenu clone() {
+    public @NotNull BasicCustomInvMenu clone() {
         try {
             BasicCustomInvMenu clone = (BasicCustomInvMenu) super.clone();
             clone.allowModifyNonMenuItems = allowModifyNonMenuItems;

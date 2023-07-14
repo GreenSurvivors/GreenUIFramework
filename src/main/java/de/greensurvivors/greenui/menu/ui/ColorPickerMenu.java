@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.menu.helper.MenuDefaults;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.ColorHolderMenuItem;
 import de.greensurvivors.greenui.menu.items.RunnableMenuItem;
 import net.kyori.adventure.text.Component;
@@ -52,12 +52,12 @@ public class ColorPickerMenu extends BasicMenu {
         }
 
         //set hue scroller up
-        setItem(new RunnableMenuItem(this.plugin, MenuDefaults.getPageMaterial(), 1, Component.text("<-"), null,
+        setItem(new RunnableMenuItem(this.plugin, MenuUtils.getPageMaterial(), 1, Component.text("<-"), null,
                 () -> {
                     scrollIndex = Math.floorMod(scrollIndex - 3, HUE_AMOUNT);
                     setHueBar(scrollIndex);
                 }), 5 * 9 - 1);
-        setItem(new RunnableMenuItem(this.plugin, MenuDefaults.getPageMaterial(), 1, Component.text("->"), null,
+        setItem(new RunnableMenuItem(this.plugin, MenuUtils.getPageMaterial(), 1, Component.text("->"), null,
                 () -> {
                     scrollIndex = Math.floorMod(scrollIndex + 3, HUE_AMOUNT);
                     setHueBar(scrollIndex);

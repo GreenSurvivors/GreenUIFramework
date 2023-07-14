@@ -8,8 +8,7 @@ items
 
 - [ ] long string --> just chat? If yes, how do we determine the player was done and maybe didn't just forget to write "
   close" or "done" or something?
-- [ ] getter for block state - similar problem. Just giving the player a time frame like 20s might be to short, but
-  4minutes might be way too long.
+- [ ] getter for block state
 - [X] ~~get clone() working everywhere~~
 
 menu
@@ -22,7 +21,7 @@ menu
 - [ ] ~~display banners --> loom~~ - same
 - [X] ~~villager - trades~~
 - [ ] filter
-- [ ] drag inventory event
+- [ ] ~~drag inventory event~~ - backlog since I can't figure out a good way to implement this
 
 general
 
