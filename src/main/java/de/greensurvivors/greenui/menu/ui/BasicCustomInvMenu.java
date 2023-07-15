@@ -131,6 +131,8 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
 
     /**
      * This tells the intractable to stop waiting for direct input
+     * Note: Does not cancel the reopenTimer of the MenuManger,
+     * rather is meant for Menus to replace one queued DirectIntractable with another.
      */
     @Override
     public void cancel() {

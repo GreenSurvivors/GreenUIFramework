@@ -126,14 +126,14 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     /**
      * get the consumer of this item
      */
-    public Consumer<Boolean> getBoolConsumer() {
+    public @NotNull Consumer<Boolean> getBoolConsumer() {
         return boolConsumer;
     }
 
     /**
      * set the consumer of this item
      */
-    public void setBoolConsumer(Consumer<Boolean> boolConsumer) {
+    public void setBoolConsumer(@NotNull Consumer<Boolean> boolConsumer) {
         this.boolConsumer = boolConsumer;
     }
 

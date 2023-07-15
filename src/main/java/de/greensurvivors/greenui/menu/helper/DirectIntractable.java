@@ -31,6 +31,8 @@ public interface DirectIntractable {
 
     /**
      * This tells the intractable to stop waiting for direct input
+     * Note: Does not cancel the reopenTimer of the MenuManger,
+     * rather is meant for Menus to replace one queued DirectIntractable with another.
      */
     void cancel();
 }

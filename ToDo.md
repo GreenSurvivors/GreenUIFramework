@@ -1,14 +1,14 @@
 modifiers 
   <br> -> takes a MenuItem in constructor and uses its calls
 - [ ]  rotating through display items --> how do I know when to rotate? It would be a waste if we keep rotating items
-  even if not currently viewed...; might also have a callback in case its used for random
+  even if not currently viewed...; might also have a callback in case It's used for random
 - [X] ~~cooldown - can only get used again after time x (optional per player)~~
 
 items
 
 - [ ] long string --> just chat? If yes, how do we determine the player was done and maybe didn't just forget to write "
   close" or "done" or something?
-- [ ] getter for block state
+- [X] ~~getter for block state~~
 - [X] ~~get clone() working everywhere~~
 
 menu
