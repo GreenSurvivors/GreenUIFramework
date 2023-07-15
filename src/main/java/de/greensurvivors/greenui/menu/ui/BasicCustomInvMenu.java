@@ -1,6 +1,5 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -29,17 +28,15 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
     //used to update titles
     protected @Nullable InventoryView view;
     protected @Nullable TextComponent title;
-    protected @NotNull Plugin plugin;
+    protected @NotNull MenuManager manager;
     protected @Nullable DirectIntractable intractableWaiting = null;
-    protected final @NotNull Translator translator;
 
-    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
-        this(plugin, translator, inventory, shouldReturnedTo, allowModifyNonMenuItems, null);
+    public BasicCustomInvMenu(@NotNull MenuManager manager, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
+        this(manager, inventory, shouldReturnedTo, allowModifyNonMenuItems, null);
     }
 
-    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title) {
-        this.plugin = plugin;
-        this.translator = translator;
+    public BasicCustomInvMenu(@NotNull MenuManager manager, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title) {
+        this.manager = manager;
         this.inventory = inventory;
         this.shouldReturnedTo = shouldReturnedTo;
         this.allowModifyNonMenuItems = allowModifyNonMenuItems;
@@ -54,7 +51,7 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
      */
     @Override
     public void open(@NotNull HumanEntity player) {
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> {
             // reset closing result
             closingResult = MenuUtils.MenuClosingResult.CLOSE;
 

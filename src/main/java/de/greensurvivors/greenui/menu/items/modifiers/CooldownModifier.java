@@ -1,11 +1,10 @@
 package de.greensurvivors.greenui.menu.items.modifiers;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,15 +20,15 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
     /**
      * @param cooldownTicks time in Ticks
      */
-    public CooldownModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, long cooldownTicks) {
-        this(plugin, translator, menuItem, cooldownTicks, true);
+    public CooldownModifier(@NotNull MenuManager manager, @NotNull E menuItem, long cooldownTicks) {
+        this(manager, menuItem, cooldownTicks, true);
     }
 
     /**
      * @param activeAtStart ime in Ticks
      */
-    public CooldownModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, long cooldownTicks, boolean activeAtStart) {
-        super(plugin, translator, menuItem, activeAtStart);
+    public CooldownModifier(@NotNull MenuManager manager, @NotNull E menuItem, long cooldownTicks, boolean activeAtStart) {
+        super(manager, menuItem, activeAtStart);
         this.cooldownTicks = cooldownTicks;
     }
 
@@ -46,7 +45,7 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
 
         if (active) {
             setActiveStat(false);
-            runningTask = Bukkit.getScheduler().runTaskLater(plugin, () -> setActiveStat(true), cooldownTicks);
+            runningTask = Bukkit.getScheduler().runTaskLater(manager.getPlugin(), () -> setActiveStat(true), cooldownTicks);
         }
     }
 
@@ -62,7 +61,7 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
 
         if (active) {
             setActiveStat(false);
-            runningTask = Bukkit.getScheduler().runTaskLater(plugin, () -> setActiveStat(true), cooldownTicks);
+            runningTask = Bukkit.getScheduler().runTaskLater(manager.getPlugin(), () -> setActiveStat(true), cooldownTicks);
         }
     }
 

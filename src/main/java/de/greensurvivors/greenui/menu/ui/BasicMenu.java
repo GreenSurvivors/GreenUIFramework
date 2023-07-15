@@ -1,10 +1,9 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,12 +11,12 @@ import org.jetbrains.annotations.Nullable;
  * basic chest-like menu
  */
 public class BasicMenu extends BasicCustomInvMenu implements Menu, Cloneable {
-    public BasicMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
-        this(plugin, translator, shouldReturnedTo, allowModifyNonMenuItems, null, 6);
+    public BasicMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
+        this(manager, shouldReturnedTo, allowModifyNonMenuItems, null, 6);
     }
 
-    public BasicMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows) {
-        super(plugin, translator, makeInv(title, rows), shouldReturnedTo, allowModifyNonMenuItems);
+    public BasicMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows) {
+        super(manager, makeInv(title, rows), shouldReturnedTo, allowModifyNonMenuItems);
     }
 
     /**

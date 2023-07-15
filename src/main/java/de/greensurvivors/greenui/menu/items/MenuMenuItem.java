@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,12 +21,12 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected boolean shouldReturnToParent;
 
-    public MenuMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Menu menuToOpen) {
-        this(plugin, translator, displayMat, 1, null, null, menuToOpen, true);
+    public MenuMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, @NotNull Menu menuToOpen) {
+        this(manager, displayMat, 1, null, null, menuToOpen, true);
     }
 
-    public MenuMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Menu menuToOpen, boolean shouldReturnToParent) {
-        super(plugin, translator, displayMat, amount, name, description);
+    public MenuMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Menu menuToOpen, boolean shouldReturnToParent) {
+        super(manager, displayMat, amount, name, description);
 
         this.menuToOpen = menuToOpen;
         this.shouldReturnToParent = shouldReturnToParent;
@@ -50,7 +49,7 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
 
         switch (event.getClick()) {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT -> Bukkit.getScheduler().runTask(
-                    this.plugin, () -> {
+                    this.manager.getPlugin(), () -> {
                         (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
 
                         menuToOpen.open(event.getWhoClicked());
@@ -67,7 +66,7 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
      */
     public void onTradeSelect(@NotNull TradeSelectEvent event) {
         super.onTradeSelect(event);
-        Bukkit.getScheduler().runTask(this.plugin, () -> (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent());
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent());
     }
 
     @Override

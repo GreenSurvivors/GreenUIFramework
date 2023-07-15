@@ -1,7 +1,7 @@
 package de.greensurvivors.greenui.menu.items;
 
 import de.greensurvivors.greenui.Translations.TranslationData;
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.ItemStackInfo;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
@@ -17,7 +17,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,19 +42,19 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected @Nullable HumanEntity viewer;
 
-    public CyclicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
-        super(plugin, translator);
+    public CyclicMenuItem(@NotNull MenuManager manager, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
+        super(manager);
         this.itemStackInfos = display;
         this.infoConsumer = infoConsumer;
 
         updateDisplay();
 
-        this.menuToOpen = new AnvilMenu(plugin, this.translator, true, false, null, PlainTextComponentSerializer.plainText().serialize(this.displayName()), this::acceptStringItem);
+        this.menuToOpen = new AnvilMenu(manager, true, false, null, PlainTextComponentSerializer.plainText().serialize(this.displayName()), this::acceptStringItem);
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
+        meta.displayName(this.manager.getTranslator().translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
         saveButton.setItemMeta(meta);
 
         this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
@@ -118,7 +117,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
             case RIGHT, SHIFT_RIGHT -> index = modInfosIndex(--index);
             case DOUBLE_CLICK -> {// get input string via anvil
                 Bukkit.getScheduler().runTask(
-                        this.plugin, () -> {
+                        this.manager.getPlugin(), () -> {
                             (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
 
                             viewer = event.getWhoClicked();
@@ -131,7 +130,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
             }
         }
         updateDisplay();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
     }
 
     /**
@@ -145,7 +144,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
 
         index = modInfosIndex(++index);
         updateDisplay();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
     }
 
     public @NotNull List<ItemStackInfo> getItemStackInfos() {
@@ -186,9 +185,9 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
 
         if (found) {
             updateDisplay();
-            Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
+            Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
         } else if (viewer != null) {
-            this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUITEM_CYCLIC_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
+            this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.manager.getTranslator().simpleTranslate(TranslationData.MENUITEM_CYCLIC_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
         }
     }
 

@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -9,7 +9,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,12 +28,12 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     // the state this item is in
     protected boolean stateNow;
 
-    public BoolMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
-        this(plugin, translator, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
+    public BoolMenuItem(@NotNull MenuManager manager, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
+        this(manager, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
     }
 
-    public BoolMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
-        super(plugin, translator);
+    public BoolMenuItem(@NotNull MenuManager manager, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
+        super(manager);
 
         this.boolConsumer = boolConsumer;
         this.stateNow = startingValue;
@@ -113,7 +112,7 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
      * the display will reflect this change and the consumer will be called
      */
     protected void updateState() {
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.boolConsumer.accept(stateNow));
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.boolConsumer.accept(stateNow));
 
         if (this.stateNow) {
             this.setType(trueStack.getType());

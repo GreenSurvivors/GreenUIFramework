@@ -1,7 +1,7 @@
 package de.greensurvivors.greenui.menu;
 
+import de.greensurvivors.greenui.Translations.GreenTranslator;
 import de.greensurvivors.greenui.Translations.TranslationData;
-import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import de.greensurvivors.greenui.menu.ui.TradeMenu;
@@ -36,16 +36,24 @@ public class MenuManager implements Listener {
     private final static long REOPEN_TICKS = 20 /* ticks*/ * 60  /* seconds*/;
 
     private final @NotNull Plugin plugin;
-    private final @NotNull Translator translator;
+    private final @NotNull GreenTranslator translator;
     // Stores all currently open inventories by all players, using a stack system we can easily add or remove child inventories.
     private final @NotNull HashMap<UUID, Stack<Menu>> activeMenus = new HashMap<>();
     private final @NotNull HashMap<Menu, BukkitTask> reopeningMenus = new HashMap<>();
 
-    public MenuManager(@NotNull Plugin plugin, @NotNull Translator translator) {
+    public MenuManager(@NotNull Plugin plugin, @NotNull GreenTranslator translator) {
         this.plugin = plugin;
         this.translator = translator;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
+
+    public @NotNull Plugin getPlugin() {
+        return this.plugin;
+    }
+
+    public GreenTranslator getTranslator() {
+        return this.translator;
     }
 
     @EventHandler(ignoreCancelled = true)

@@ -1,6 +1,5 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -11,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +20,8 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
     protected @NotNull Consumer<Block> blockConsumer;
     protected @NotNull Menu parent;
 
-    public BlockMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Menu parent, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Consumer<Block> blockConsumer) {
-        super(plugin, translator, displayMat, amount, name, description);
+    public BlockMenuItem(@NotNull MenuManager manager, @NotNull Menu parent, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Consumer<Block> blockConsumer) {
+        super(manager, displayMat, amount, name, description);
 
         this.blockConsumer = blockConsumer;
         this.parent = parent;
@@ -45,7 +43,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
 
                 // close the menu this Item is in and wait for a interactEvent to happen
                 parent.setClosingResult(MenuUtils.MenuClosingResult.REOPEN_AFTER_TIME);
-                Bukkit.getScheduler().runTask(this.plugin, () -> parent.close());
+                Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> parent.close());
             }
         }
     }
@@ -62,7 +60,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
 
         // close the menu this Item is in and wait for a interactEvent to happen
         parent.setClosingResult(MenuUtils.MenuClosingResult.REOPEN_AFTER_TIME);
-        Bukkit.getScheduler().runTask(this.plugin, () -> parent.close());
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> parent.close());
     }
 
     /**
@@ -77,7 +75,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
      */
     @Override
     public boolean onBlockInteract(@NotNull Block block) {
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> {
             // in the same tick so if the consumer may change the item in this slot it doesn't flash
             updateDisplay(block);
 

@@ -32,6 +32,7 @@ general
 - [ ] more documenting
 - [ ] ~~permission checks and disabling of menu items if necessary~~ done by user of this
 
-Translator umschreiben um eignene Registery zu haben für LocaleChains
+Translator umschreiben um eignene Registery zu haben für LocaleChains --> user locale chaining über nachbarsprachen zu
+default zu fallback
 MessagePattern umschreiben um richtige Placeholder zu haben.
 PlaceholderAPI einbinden

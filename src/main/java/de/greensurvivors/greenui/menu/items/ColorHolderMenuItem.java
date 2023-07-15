@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.meta.ColorableArmorMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -26,8 +25,8 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
      * @param displayMat should be one of {@link Material#LEATHER_HELMET}, {@link Material#LEATHER_CHESTPLATE}, {@link Material#LEATHER_LEGGINGS} or {@link Material#LEATHER_BOOTS}
      *                   the result will be a leather item colored with the given color. If no valid material is given, this will return a colored {@link Material#LEATHER_CHESTPLATE}
      */
-    public ColorHolderMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @NotNull TextColor color, Consumer<TextColor> colorConsumer) {
-        super(plugin, translator,
+    public ColorHolderMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @NotNull TextColor color, Consumer<TextColor> colorConsumer) {
+        super(manager,
                 switch (displayMat) {
                     case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> displayMat;
                     default -> Material.LEATHER_CHESTPLATE;
@@ -53,7 +52,7 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
 
         switch (event.getClick()) {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT ->
-                    Bukkit.getScheduler().runTask(this.plugin, () -> this.colorConsumer.accept(this.color));
+                    Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.colorConsumer.accept(this.color));
         }
     }
 
@@ -65,7 +64,7 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
      */
     public void onTradeSelect(@NotNull TradeSelectEvent event) {
         super.onTradeSelect(event);
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.colorConsumer.accept(this.color));
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.colorConsumer.accept(this.color));
     }
 
     /**

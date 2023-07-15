@@ -1,12 +1,11 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,12 +18,12 @@ import java.util.List;
 public class RunnableMenuItem extends BasicMenuItem {
     protected @NotNull Runnable runnable;
 
-    public RunnableMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Runnable runnable) {
-        this(plugin, translator, displayMat, 1, null, null, runnable);
+    public RunnableMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, @NotNull Runnable runnable) {
+        this(manager, displayMat, 1, null, null, runnable);
     }
 
-    public RunnableMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Runnable runnable) {
-        super(plugin, translator, displayMat, amount, name, description);
+    public RunnableMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Runnable runnable) {
+        super(manager, displayMat, amount, name, description);
 
         this.runnable = runnable;
     }
@@ -42,7 +41,7 @@ public class RunnableMenuItem extends BasicMenuItem {
         switch (event.getClick()) {
             //runs the runnable in another sync task to prevent future bugs
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT ->
-                    Bukkit.getScheduler().runTask(this.plugin, () -> this.runnable.run());
+                    Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.runnable.run());
         }
     }
 
@@ -55,7 +54,7 @@ public class RunnableMenuItem extends BasicMenuItem {
     public void onTradeSelect(@NotNull TradeSelectEvent event) {
         super.onTradeSelect(event);
 
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.runnable.run());
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.runnable.run());
     }
 
     @Override

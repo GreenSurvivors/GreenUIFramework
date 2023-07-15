@@ -1,10 +1,9 @@
 package de.greensurvivors.greenui.menu.items.modifiers;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 public class BasicModifier<E extends BasicMenuItem> extends BasicMenuItem implements Cloneable {
     protected @NotNull E menuItem;
 
-    public BasicModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem) {
-        super(plugin, translator, menuItem);
+    public BasicModifier(@NotNull MenuManager manager, @NotNull E menuItem) {
+        super(manager, menuItem);
         this.menuItem = menuItem;
     }
 

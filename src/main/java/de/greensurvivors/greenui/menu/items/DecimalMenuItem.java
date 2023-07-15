@@ -1,7 +1,7 @@
 package de.greensurvivors.greenui.menu.items;
 
 import de.greensurvivors.greenui.Translations.TranslationData;
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
@@ -16,7 +16,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,13 +44,13 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected @Nullable HumanEntity viewer;
 
-    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Consumer<Double> decimalConsumer) {
-        this(plugin, translator, displayMat, 1, null, decimalConsumer, 0, null, null, 1, 0.1);
+    public DecimalMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, @NotNull Consumer<Double> decimalConsumer) {
+        this(manager, displayMat, 1, null, decimalConsumer, 0, null, null, 1, 0.1);
     }
 
-    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Double> decimalConsumer,
+    public DecimalMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Double> decimalConsumer,
                            double startingValue, @Nullable Double min, @Nullable Double max, int intStepSize, double fractionalStepSize) {
-        super(plugin, translator, displayMat, amount, name, null);
+        super(manager, displayMat, amount, name, null);
 
         this.decimalConsumer = decimalConsumer;
         this.value = startingValue;
@@ -68,12 +67,12 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
             value = Math.min(max, value);
         }
 
-        this.menuToOpen = new AnvilMenu(plugin, this.translator, true, false, null, this.form.format(this.value), this::acceptStringItem);
+        this.menuToOpen = new AnvilMenu(manager, true, false, null, this.form.format(this.value), this::acceptStringItem);
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
+        meta.displayName(this.manager.getTranslator().translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
         saveButton.setItemMeta(meta);
 
         this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
@@ -121,7 +120,7 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
             case SHIFT_RIGHT -> value -= fractionalStepSize;
             case DOUBLE_CLICK -> {// get input string via anvil
                 Bukkit.getScheduler().runTask(
-                        this.plugin, () -> {
+                        this.manager.getPlugin(), () -> {
                             (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
 
                             viewer = event.getWhoClicked();
@@ -144,7 +143,7 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
 
         //update this
         updateLore();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.decimalConsumer.accept(value));
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.decimalConsumer.accept(value));
     }
 
     /**
@@ -179,14 +178,14 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
     protected void acceptStringItem(@NotNull ItemStack stringResult) {
         String itemName = PlainTextComponentSerializer.plainText().serialize(stringResult.displayName());
 
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> {
             if (MenuUtils.isDouble(itemName)) {
                 this.value = Double.parseDouble(itemName);
                 this.decimalConsumer.accept(this.value);
             } else {
 
                 if (this.viewer != null) {
-                    this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUITEM_DECIMAL_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
+                    this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.manager.getTranslator().simpleTranslate(TranslationData.MENUITEM_DECIMAL_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
                 }
             }
         });

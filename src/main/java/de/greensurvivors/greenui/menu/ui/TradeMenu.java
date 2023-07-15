@@ -1,6 +1,5 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -42,17 +41,15 @@ public class TradeMenu implements Menu, Cloneable {
     //used to update titles
     protected InventoryView view;
     protected @Nullable TextComponent title;
-    protected @NotNull Plugin plugin;
     protected @Nullable DirectIntractable intractableWaiting;
-    protected final @NotNull Translator translator;
+    protected final @NotNull MenuManager manager;
 
-    public TradeMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
-        this(plugin, translator, shouldReturnedTo, allowModifyNonMenuItems, null, List.of());
+    public TradeMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
+        this(manager, shouldReturnedTo, allowModifyNonMenuItems, null, List.of());
     }
 
-    public TradeMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @NotNull List<@NotNull MerchantRecipe> recipes) {
-        this.plugin = plugin;
-        this.translator = translator;
+    public TradeMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @NotNull List<@NotNull MerchantRecipe> recipes) {
+        this.manager = manager;
         this.shouldReturnedTo = shouldReturnedTo;
         this.allowModifyNonMenuItems = allowModifyNonMenuItems;
         this.title = title;
@@ -77,7 +74,7 @@ public class TradeMenu implements Menu, Cloneable {
      */
     @Override
     public void open(@NotNull HumanEntity player) {
-        Bukkit.getScheduler().runTask(this.plugin, () -> {
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> {
             // reset closing result
             this.closingResult = MenuUtils.MenuClosingResult.CLOSE;
 

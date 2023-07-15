@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -8,7 +8,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,41 +20,35 @@ import java.util.List;
  * In order to get recognized as a special items by the menus, all kinds of MenuItems have to expand this class.
  */
 public class BasicMenuItem extends ItemStack implements Cloneable {
-    protected @NotNull Plugin plugin;
-    protected final @NotNull Translator translator;
+    protected @NotNull MenuManager manager;
 
     /**
      * new basic menu item, defaults to {@link MenuUtils#getFillerMaterial()}
      */
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator) {
-        super(MenuUtils.getFillerMaterial());
-        this.plugin = plugin;
-        this.translator = translator;
+    public BasicMenuItem(@NotNull MenuManager manager) {
+        this(manager, MenuUtils.getFillerMaterial());
     }
 
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material material) {
+    public BasicMenuItem(@NotNull MenuManager manager, @NotNull Material material) {
         super(material);
 
-        this.plugin = plugin;
-        this.translator = translator;
+        this.manager = manager;
     }
 
     /**
      * copy the given itemStack
      */
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull ItemStack displayItemStack) {
+    public BasicMenuItem(@NotNull MenuManager manager, @NotNull ItemStack displayItemStack) {
         super(displayItemStack.getType());
         super.setAmount(displayItemStack.getAmount());
         super.setItemMeta(displayItemStack.getItemMeta().clone());
 
-        this.plugin = plugin;
-        this.translator = translator;
+        this.manager = manager;
     }
 
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description) {
+    public BasicMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description) {
         super(displayMat, amount);
-        this.plugin = plugin;
-        this.translator = translator;
+        this.manager = manager;
 
         ItemMeta meta = super.getItemMeta();
 
@@ -91,6 +84,6 @@ public class BasicMenuItem extends ItemStack implements Cloneable {
 
     @Override
     public @NotNull BasicMenuItem clone() {
-        return new BasicMenuItem(this.plugin, this.translator, super.clone());
+        return new BasicMenuItem(this.manager, super.clone());
     }
 }

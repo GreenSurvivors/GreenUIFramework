@@ -1,6 +1,5 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -33,19 +32,17 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
     protected TextComponent title;
     //used to update titles
     protected @Nullable InventoryView view = null;
-    protected @NotNull Plugin plugin;
+    protected @NotNull MenuManager manager;
     protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;
     protected int openPage = 0;
     protected @Nullable DirectIntractable intractableWaiting = null;
-    protected final @NotNull Translator translator;
 
-    public BasicMultiPageMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnToParent) {
-        this(plugin, translator, shouldReturnToParent, false, null, 6);
+    public BasicMultiPageMenu(@NotNull MenuManager manager, boolean shouldReturnToParent) {
+        this(manager, shouldReturnToParent, false, null, 6);
     }
 
-    public BasicMultiPageMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnToParent, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows) {
-        this.plugin = plugin;
-        this.translator = translator;
+    public BasicMultiPageMenu(@NotNull MenuManager manager, boolean shouldReturnToParent, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows) {
+        this.manager = manager;
         this.shouldReturnToParent = shouldReturnToParent;
         this.allowModifyNonMenuItems = allowModifyNonMenuItems;
         this.rows = Math.min(6, Math.max(rows, 2));
@@ -77,13 +74,13 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
         BasicMenu menu = pages.get(rangedPageNumber);
 
         if (rangedPageNumber > 0) {
-            menu.setItem(new RunnableMenuItem(this.plugin, this.translator, MenuUtils.getPageMaterial(), rangedPageNumber /* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
+            menu.setItem(new RunnableMenuItem(this.manager, MenuUtils.getPageMaterial(), rangedPageNumber /* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
                 this.open(player, rangedPageNumber - 1);
             }), getSize() - 9 - 1);
         }
 
         if (rangedPageNumber < pages.size()) {
-            menu.setItem(new RunnableMenuItem(this.plugin, this.translator, MenuUtils.getPageMaterial(), rangedPageNumber + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
+            menu.setItem(new RunnableMenuItem(this.manager, MenuUtils.getPageMaterial(), rangedPageNumber + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
                 this.open(player, rangedPageNumber + 1);
             }), getSize() - 1);
         }
@@ -93,7 +90,7 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
             this.view.setTitle(title.content());
         }
 
-        Bukkit.getScheduler().runTask(this.plugin, () -> (new OpenGreenUIEvent(player.getUniqueId(), menu)).callEvent());
+        Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> (new OpenGreenUIEvent(player.getUniqueId(), menu)).callEvent());
     }
 
     /**
@@ -189,7 +186,7 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
             int start = pages.size();
 
             for (int i = 0; i <= diff; i++) {
-                pages.put(start + i, new BasicMenu(plugin, this.translator, false, allowModifyNonMenuItems, (TextComponent) title, rows));
+                pages.put(start + i, new BasicMenu(this.manager, false, allowModifyNonMenuItems, (TextComponent) title, rows));
             }
         }
     }
@@ -405,13 +402,13 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
                 BasicMenu menu = pages.get(openPage);
 
                 if (this.openPage > 0) {
-                    menu.setItem(new RunnableMenuItem(this.plugin, this.translator, MenuUtils.getPageMaterial(), this.openPage/* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
+                    menu.setItem(new RunnableMenuItem(this.manager, MenuUtils.getPageMaterial(), this.openPage/* start counting from 1 in UI*/, Component.text("<-"), null, () -> {
                         this.open(player, this.openPage - 1);
                     }), getSize() - 9 - 1);
                 }
 
                 if (this.openPage < pages.size()) {
-                    menu.setItem(new RunnableMenuItem(this.plugin, this.translator, MenuUtils.getPageMaterial(), this.openPage + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
+                    menu.setItem(new RunnableMenuItem(this.manager, MenuUtils.getPageMaterial(), this.openPage + 2/* start counting from 1 in UI*/, Component.text("->"), null, () -> {
                         this.open(player, this.openPage + 1);
                     }), getSize() - 1);
                 }

@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
-import de.greensurvivors.greenui.Translations.Translator;
+import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import net.kyori.adventure.text.Component;
@@ -14,7 +14,6 @@ import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,12 +27,12 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     protected @NotNull Consumer<@NotNull ItemStack> itemConsumer;
     protected @Nullable String startingText;
 
-    public AnvilMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
-        this(plugin, translator, shouldReturnedTo, false, null, null, itemConsumer);
+    public AnvilMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
+        this(manager, shouldReturnedTo, false, null, null, itemConsumer);
     }
 
-    public AnvilMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
-        super(plugin, translator, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems);
+    public AnvilMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
+        super(manager, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems);
         this.itemConsumer = itemConsumer;
         this.startingText = startingText;
         this.title = title;
@@ -53,7 +52,7 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
             ItemStack left = ((AnvilInventory) inventory).getFirstItem();
 
             if (left == null) {
-                left = new BasicMenuItem(this.plugin, this.translator, Material.PAPER);
+                left = new BasicMenuItem(this.manager, Material.PAPER);
             }
 
             ItemMeta meta = left.getItemMeta();
@@ -86,7 +85,7 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
         super.onInventoryClick(event);
 
         if (event.getRawSlot() == MenuUtils.TwoCraftSlots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
-            Bukkit.getScheduler().runTask(this.plugin, () -> {
+            Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> {
                 itemConsumer.accept(((AnvilInventory) inventory).getResult());
 
                 if (this.view != null) {
