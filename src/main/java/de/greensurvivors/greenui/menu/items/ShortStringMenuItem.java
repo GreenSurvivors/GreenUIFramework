@@ -40,7 +40,7 @@ public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_SAVE.getKey()));
+        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
         saveButton.setItemMeta(meta);
 
         super.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());

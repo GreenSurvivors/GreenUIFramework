@@ -44,7 +44,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
                 parent.setDirectListener(this);
 
                 // close the menu this Item is in and wait for a interactEvent to happen
-                parent.setClosingResult(MenuUtils.MenuClosingResult.REOPEN_LATER);
+                parent.setClosingResult(MenuUtils.MenuClosingResult.REOPEN_AFTER_TIME);
                 Bukkit.getScheduler().runTask(this.plugin, () -> parent.close());
             }
         }
@@ -61,7 +61,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
         parent.setDirectListener(this);
 
         // close the menu this Item is in and wait for a interactEvent to happen
-        parent.setClosingResult(MenuUtils.MenuClosingResult.REOPEN_LATER);
+        parent.setClosingResult(MenuUtils.MenuClosingResult.REOPEN_AFTER_TIME);
         Bukkit.getScheduler().runTask(this.plugin, () -> parent.close());
     }
 

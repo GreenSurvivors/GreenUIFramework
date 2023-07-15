@@ -19,8 +19,6 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
     protected @Nullable BukkitTask runningTask = null;
 
     /**
-     * @param plugin
-     * @param menuItem
      * @param cooldownTicks time in Ticks
      */
     public CooldownModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, long cooldownTicks) {
@@ -28,9 +26,6 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
     }
 
     /**
-     * @param plugin
-     * @param menuItem
-     * @param cooldownTicks
      * @param activeAtStart ime in Ticks
      */
     public CooldownModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, long cooldownTicks, boolean activeAtStart) {

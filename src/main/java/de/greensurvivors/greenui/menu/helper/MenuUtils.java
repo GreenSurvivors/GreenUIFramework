@@ -176,6 +176,7 @@ public class MenuUtils {
     public enum MenuClosingResult {
         STAY_OPEN,
         CLOSE,
-        REOPEN_LATER
+        REOPEN_AFTER_TIME,
+        REOPEN_EVENT
     }
 }

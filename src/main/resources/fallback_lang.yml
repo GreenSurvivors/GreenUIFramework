@@ -1,0 +1,14 @@
+MEMUITEM:
+  CYCLIC:
+    ERROR:
+      NOMATCH: '<b><dark_red>Error:</dark_red></b> <dark_gray>Couldn`t understand \"</dark_gray><gold><b>{0}</b></gold><dark_gray>\".</dark_gray>'
+  DECIMAL:
+    ERROR:
+      NOMATCH: '<b><dark_red>Error:</dark_red></b> <dark_gray>Couldn`t understand \"</dark_gray><gold><b>{0}</b></gold><dark_gray>\" as a decimal.</dark_gray>'
+  INT:
+    ERROR:
+      NOMATCH: '<b><dark_red>Error:</dark_red></b> <dark_gray>Couldn`t understand \"</dark_gray><gold><b>{0}</b></gold><dark_gray>\" as a int.</dark_gray>'
+  GENERAL:
+    SAVE: '<b><color:#00a113>Save</color></b>'
+MENUMANAGER:
+  REOPENLATER: '<dark_green>Enter your input, the menu will automatically reopen in </dark_green><yellow>\"</yellow><gold>{0}</gold><yellow>\"</yellow><gold>s</gold><dark_green> if nothing is entered.</dark_green>'

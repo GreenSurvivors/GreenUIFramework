@@ -33,7 +33,7 @@ import java.util.logging.Level;
  * keeps track of all open GreenUIs and keeps them working by providing event calls
  */
 public class MenuManager implements Listener {
-    private final static long REOPEN_TICKS = 20 /* Ticks*/ * 60;
+    private final static long REOPEN_TICKS = 20 /* ticks*/ * 60  /* seconds*/;
 
     private final @NotNull Plugin plugin;
     private final @NotNull Translator translator;
@@ -81,7 +81,7 @@ public class MenuManager implements Listener {
                 player.updateInventory();
             }
         } else {
-            // todo -> mayday! we are out of sync!
+            this.plugin.getLogger().log(Level.WARNING, "Player " + event.getWhoClicked().getName() + " (" + playerId.toString() + ") is out of sync with the MenuManager. Please contact an Admin!");
         }
     }
 
@@ -149,10 +149,13 @@ public class MenuManager implements Listener {
                     player.openInventory(inv);
                 }
             }, 0);
-            case REOPEN_LATER -> {
+            case REOPEN_AFTER_TIME -> {
                 BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin, () -> menu.open(event.getPlayer()), REOPEN_TICKS);
                 reopeningMenus.put(menu, task);
                 event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUMANAGER_REOPENLATER.getKey()).format(new long[]{REOPEN_TICKS / 20L})));
+            }
+            case REOPEN_EVENT -> {
+                //todo implement me for long strings
             }
             default -> {
                 plugin.getLogger().log(Level.WARNING, "Unknown close result. How did we get here? Removing Menu from Stack anyway");
@@ -174,7 +177,7 @@ public class MenuManager implements Listener {
             BukkitTask task = reopeningMenus.get(menu);
 
             if (task != null) {
-                if (menu.onBlockInteract(event.getClickedBlock())) {
+                if (event.getClickedBlock() != null && menu.onBlockInteract(event.getClickedBlock())) {
                     // don't interact with anything, just observe!
                     event.setCancelled(true);
 

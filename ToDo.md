@@ -6,7 +6,7 @@ modifiers
 
 items
 
-- [ ] long string --> just chat? If yes, how do we determine the player was done and maybe didn't just forget to write "
+- [X] long string --> just chat? If yes, how do we determine the player was done and maybe didn't just forget to write "
   close" or "done" or something?
 - [X] ~~getter for block state~~
 - [X] ~~get clone() working everywhere~~
@@ -28,7 +28,7 @@ general
 - [X] ~~getter/setter for all protected~~
 - [ ] lore of MenuItems (discretion / value)
 - [ ] don't destroy lore just add to it
-- [ ] translations and nice formatting
+- [X] ~~translations and nice formatting~~
 - [ ] more documenting
 - [ ] ~~permission checks and disabling of menu items if necessary~~ done by user of this
 

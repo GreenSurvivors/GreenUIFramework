@@ -30,7 +30,6 @@ import java.util.logging.Level;
  * Must be formatted in {@link MiniMessage#deserialize(Object)} readable input
  */
 public class Translator {
-    private final @Nullable FileConfiguration fallbackConfig;
     private final @NotNull Locale fallbackLocale;
     private final @NotNull TranslationRegistry registry;
     private final @NotNull Plugin plugin;
@@ -52,7 +51,15 @@ public class Translator {
         @Subst("test") final String pluginName = plugin.getName().toLowerCase(); // please use simple latin and no one gets hurt
         this.registry = TranslationRegistry.create(Key.key(pluginName + ":greenui_framework"));
 
-        this.fallbackConfig = getFallbackConfig(); // todo load
+        // register fallback translations
+        FileConfiguration cfg = getFallbackConfig();
+        for (TranslationData data : TranslationData.values()) {
+            String message = cfg.getString(data.getKey());
+
+            if (message != null) {
+                registry.register(data.getKey(), fallbackLocale, new MessageFormat(message));
+            }
+        }
     }
 
     /**

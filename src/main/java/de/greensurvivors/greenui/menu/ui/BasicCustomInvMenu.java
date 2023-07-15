@@ -233,9 +233,6 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
         this.intractableWaiting = intractable;
     }
 
-    /**
-     * @param closingResult
-     */
     public void setClosingResult(MenuUtils.MenuClosingResult closingResult) {
         this.closingResult = closingResult;
     }

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * Don't worry you can still register you own, but these are the ones, this lib ships with.
  */
 public enum TranslationData {
-    MEMUITEM_SAVE,
+    MEMUITEM_GENERAL_SAVE, // save.
 
     MENUITEM_CYCLIC_ERROR_NOMATCH, // "Error, couldn't understand '" + itemName + "'."
     MENUITEM_DECIMAL_ERROR_NOMATCH, //"Error, couldn't understand '" + itemName + "' as a decimal."
