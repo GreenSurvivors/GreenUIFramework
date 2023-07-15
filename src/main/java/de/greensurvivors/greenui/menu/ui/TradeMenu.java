@@ -32,6 +32,7 @@ import java.util.List;
  * opens the inventory again.
  */
 public class TradeMenu implements Menu, Cloneable {
+    protected final @NotNull MenuManager manager;
     protected @NotNull List<@NotNull MerchantRecipe> recipes;
     protected @NotNull Merchant merchant;
     protected Inventory inventory;
@@ -42,7 +43,6 @@ public class TradeMenu implements Menu, Cloneable {
     protected InventoryView view;
     protected @Nullable TextComponent title;
     protected @Nullable DirectIntractable intractableWaiting;
-    protected final @NotNull MenuManager manager;
 
     public TradeMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
         this(manager, shouldReturnedTo, allowModifyNonMenuItems, null, List.of());

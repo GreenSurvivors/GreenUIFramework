@@ -32,7 +32,10 @@ general
 - [ ] more documenting
 - [ ] ~~permission checks and disabling of menu items if necessary~~ done by user of this
 
-Translator umschreiben um eignene Registery zu haben für LocaleChains --> user locale chaining über nachbarsprachen zu
-default zu fallback
-MessagePattern umschreiben um richtige Placeholder zu haben.
-PlaceholderAPI einbinden
+translations
+
+- [X] ~~rewrite Translator to get ready for localeGroups~~
+- [ ] locale groups -> if one Locale doesn't have a translation for a key may ask the group
+- [X] fallback are shipped translations
+- [ ] rewrite Message pattern to have better Placeholders
+- [ ] Placeholder API optional dependency

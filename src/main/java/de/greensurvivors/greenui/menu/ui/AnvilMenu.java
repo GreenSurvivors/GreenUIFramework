@@ -39,6 +39,17 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     /**
+     * just a helper to make the constructor super() call look neater
+     */
+    protected static Inventory makeInv(@Nullable TextComponent title) {
+        if (title == null) {
+            return Bukkit.createInventory(null, InventoryType.ANVIL);
+        } else {
+            return Bukkit.createInventory(null, InventoryType.ANVIL, title);
+        }
+    }
+
+    /**
      * initialises all important stuff that has to be done,
      * and opens the menu inventory for the player
      *
@@ -60,17 +71,6 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
 
             left.setItemMeta(meta);
             ((AnvilInventory) inventory).setFirstItem(left);
-        }
-    }
-
-    /**
-     * just a helper to make the constructor super() call look neater
-     */
-    protected static Inventory makeInv(@Nullable TextComponent title) {
-        if (title == null) {
-            return Bukkit.createInventory(null, InventoryType.ANVIL);
-        } else {
-            return Bukkit.createInventory(null, InventoryType.ANVIL, title);
         }
     }
 
