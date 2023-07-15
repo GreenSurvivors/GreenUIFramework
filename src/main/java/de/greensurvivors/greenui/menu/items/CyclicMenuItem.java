@@ -1,13 +1,23 @@
 package de.greensurvivors.greenui.menu.items;
 
 import de.greensurvivors.greenui.menu.helper.ItemStackInfo;
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
+import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
+import de.greensurvivors.greenui.menu.ui.AnvilMenu;
+import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +38,25 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
     // holds the index of the current info taken from itemStackInfos
     protected int index = 0;
 
+    protected @NotNull Menu menuToOpen;
+    protected @Nullable HumanEntity viewer;
+
     public CyclicMenuItem(@NotNull Plugin plugin, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
         super(plugin);
         this.itemStackInfos = display;
         this.infoConsumer = infoConsumer;
 
         updateDisplay();
+
+        this.menuToOpen = new AnvilMenu(plugin, true, false, null, PlainTextComponentSerializer.plainText().serialize(this.displayName()), this::acceptStringItem);
+
+        //set displayname for save button
+        ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
+        ItemMeta meta = saveButton.getItemMeta();
+        meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
+        saveButton.setItemMeta(meta);
+
+        this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
     }
 
     /**
@@ -91,8 +114,19 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
         switch (event.getClick()) {
             case LEFT, SHIFT_LEFT -> index = modInfosIndex(++index);
             case RIGHT, SHIFT_RIGHT -> index = modInfosIndex(--index);
-            case DOUBLE_CLICK -> {
-            } //todo let the player write the name of option
+            case DOUBLE_CLICK -> {// get input string via anvil
+                Bukkit.getScheduler().runTask(
+                        this.plugin, () -> {
+                            (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
+
+                            viewer = event.getWhoClicked();
+                            menuToOpen.open(event.getWhoClicked());
+                        }
+                );
+
+                // skip update
+                return;
+            }
         }
         updateDisplay();
         Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
@@ -114,6 +148,46 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
 
     public @NotNull List<ItemStackInfo> getItemStackInfos() {
         return itemStackInfos;
+    }
+
+    /**
+     * takes the displayname of an ItemStack and tries to parse an index
+     */
+    protected void acceptStringItem(@NotNull ItemStack stringResult) {
+        String itemName = PlainTextComponentSerializer.plainText().serialize(stringResult.displayName());
+
+        boolean found = false;
+
+        for (int i = 0; i < itemStackInfos.size(); i++) {
+            ItemStackInfo info = itemStackInfos.get(i);
+            if (info.name() != null && itemName.equals(PlainTextComponentSerializer.plainText().serialize(info.name()))) {
+                found = true;
+                index = i;
+
+                break;
+            }
+        }
+
+        //welp. try Material.
+        Material mat = Material.matchMaterial(itemName);
+        if (!found && mat != null) {
+            for (int i = 0; i < itemStackInfos.size(); i++) {
+                ItemStackInfo info = itemStackInfos.get(i);
+                if (mat == info.material()) {
+                    found = true;
+                    index = i;
+
+                    break;
+                }
+            }
+        }
+
+        if (found) {
+            updateDisplay();
+            Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
+        } else if (viewer != null) {
+            viewer.sendMessage(Component.text("")); //todo
+        }
     }
 
     /**

@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  */
 public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     // material to display both possible states
-    protected @NotNull ItemStack trueStack; //todo getter, setter
+    protected @NotNull ItemStack trueStack;
     protected @NotNull ItemStack falseStack;
     // called whenever the state changes
     protected @NotNull Consumer<@NotNull Boolean> boolConsumer;
@@ -29,10 +29,10 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     protected boolean stateNow;
 
     public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
-        this(plugin, name, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
+        this(plugin, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
     }
 
-    public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
+    public BoolMenuItem(@NotNull Plugin plugin, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
         super(plugin);
 
         this.boolConsumer = boolConsumer;
@@ -150,6 +150,22 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     public void setState(boolean newState) {
         this.stateNow = newState;
         updateState();
+    }
+
+    public @NotNull ItemStack getTrueStack() {
+        return this.trueStack;
+    }
+
+    public void setTrueStack(@NotNull ItemStack newTrueStack) {
+        this.trueStack = newTrueStack;
+    }
+
+    public @NotNull ItemStack getFalseStack() {
+        return this.falseStack;
+    }
+
+    public void setFalseStack(@NotNull ItemStack newFalseStack) {
+        this.falseStack = newFalseStack;
     }
 
     @Override

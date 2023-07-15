@@ -1,10 +1,19 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
+import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
+import de.greensurvivors.greenui.menu.ui.AnvilMenu;
+import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +33,9 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Consumer<@NotNull Integer> intConsumer;
     // the state this menuItem is in
     protected int value;
+
+    protected @NotNull Menu menuToOpen;
+    protected @Nullable HumanEntity viewer;
 
     public IntMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Integer> consumer) {
         this(plugin, displayMat, 1, null, consumer, 0, null, null);
@@ -45,9 +57,60 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
             value = Math.min(max, value);
         }
 
+        this.menuToOpen = new AnvilMenu(plugin, true, false, null, String.valueOf(this.value), this::acceptStringItem);
+
+        //set displayname for save button
+        ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
+        ItemMeta meta = saveButton.getItemMeta();
+        meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
+        saveButton.setItemMeta(meta);
+
         //update result
         updateLore();
         consumer.accept(value);
+    }
+
+    /**
+     * called when this Item was clicked.
+     * in/decreases the integer value
+     *
+     * @param event the click event that was called
+     */
+    @Override
+    public void onClick(@NotNull InventoryClickEvent event) {
+        super.onClick(event);
+
+        switch (event.getClick()) {
+            case LEFT -> value++;
+            case SHIFT_LEFT -> value += 10;
+            case RIGHT -> value--;
+            case SHIFT_RIGHT -> value -= 10;
+            case DOUBLE_CLICK -> {// get input string via anvil
+                Bukkit.getScheduler().runTask(
+                        this.plugin, () -> {
+                            (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
+
+                            viewer = event.getWhoClicked();
+                            menuToOpen.open(event.getWhoClicked());
+                        }
+                );
+
+                // skip value test
+                return;
+            }
+        }
+
+        //stay in bounds
+        if (min != null) {
+            value = Math.max(min, value);
+        }
+        if (max != null) {
+            value = Math.min(max, value);
+        }
+
+        //update this
+        updateLore();
+        Bukkit.getScheduler().runTask(this.plugin, () -> this.intConsumer.accept(value));
     }
 
     /**
@@ -72,35 +135,22 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
     }
 
     /**
-     * called when this Item was clicked.
-     * in/decreases the integer value
-     *
-     * @param event the click event that was called
+     * takes the displayname of an ItemStack and tries to parse an int value from it
      */
-    @Override
-    public void onClick(@NotNull InventoryClickEvent event) {
-        super.onClick(event);
+    protected void acceptStringItem(@NotNull ItemStack stringResult) {
+        String itemName = PlainTextComponentSerializer.plainText().serialize(stringResult.displayName());
 
-        switch (event.getClick()) {
-            case LEFT -> value++;
-            case SHIFT_LEFT -> value += 10;
-            case RIGHT -> value--;
-            case SHIFT_RIGHT -> value -= 10;
-            case DOUBLE_CLICK -> {
-            } //todo let the user directly input, maybe via anvil?
-        }
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
+            if (MenuUtils.isInt(itemName)) {
+                this.value = Integer.parseInt(itemName);
+                this.intConsumer.accept(this.value);
+            } else {
 
-        //stay in bounds
-        if (min != null) {
-            value = Math.max(min, value);
-        }
-        if (max != null) {
-            value = Math.min(max, value);
-        }
-
-        //update this
-        updateLore();
-        Bukkit.getScheduler().runTask(this.plugin, () -> this.intConsumer.accept(value));
+                if (this.viewer != null) {
+                    this.viewer.sendMessage(Component.text("Error, couldn't understand '" + itemName + " as a decimal.")); // todo translation
+                }
+            }
+        });
     }
 
     /**
@@ -112,6 +162,7 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
 
     /**
      * set the current value
+     * expects to be called in sync
      */
     public void setValue(int newValue) {
         this.value = newValue;

@@ -1,10 +1,19 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.menu.helper.MenuUtils;
+import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
+import de.greensurvivors.greenui.menu.ui.AnvilMenu;
+import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +40,9 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
     // the state this menuItem is in
     protected double value;
 
+    protected @NotNull Menu menuToOpen;
+    protected @Nullable HumanEntity viewer;
+
     public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Double> decimalConsumer) {
         this(plugin, displayMat, 1, null, decimalConsumer, 0, null, null, 1, 0.1);
     }
@@ -54,6 +66,16 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
             value = Math.min(max, value);
         }
 
+        this.menuToOpen = new AnvilMenu(plugin, true, false, null, this.form.format(this.value), this::acceptStringItem);
+
+        //set displayname for save button
+        ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
+        ItemMeta meta = saveButton.getItemMeta();
+        meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
+        saveButton.setItemMeta(meta);
+
+        this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
+
         //update result
         updateLore();
         decimalConsumer.accept(value);
@@ -66,14 +88,14 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
         List<Component> newLore = new ArrayList<>();
         Component loreLine = Component.empty();
 
-        if (min != null) {
-            loreLine = loreLine.append(Component.text(min).append(Component.text(" < ")).color(NamedTextColor.GREEN));
+        if (this.min != null) {
+            loreLine = loreLine.append(Component.text(this.min).append(Component.text(" < ")).color(NamedTextColor.GREEN));
         }
 
-        loreLine = loreLine.append(Component.text(form.format(value)).color(NamedTextColor.YELLOW));
+        loreLine = loreLine.append(Component.text(this.form.format(this.value)).color(NamedTextColor.YELLOW));
 
-        if (max != null) {
-            loreLine = loreLine.append(Component.text(" < ").append(Component.text(max)).color(NamedTextColor.GREEN));
+        if (this.max != null) {
+            loreLine = loreLine.append(Component.text(" < ").append(Component.text(this.max)).color(NamedTextColor.GREEN));
         }
 
         newLore.add(loreLine);
@@ -95,8 +117,19 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
             case SHIFT_LEFT -> value += fractionalStepSize;
             case RIGHT -> value -= intStepSize;
             case SHIFT_RIGHT -> value -= fractionalStepSize;
-            case DOUBLE_CLICK -> {
-            } //todo let the user directly input, maybe via anvil?
+            case DOUBLE_CLICK -> {// get input string via anvil
+                Bukkit.getScheduler().runTask(
+                        this.plugin, () -> {
+                            (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
+
+                            viewer = event.getWhoClicked();
+                            menuToOpen.open(event.getWhoClicked());
+                        }
+                );
+
+                // skip value test
+                return;
+            }
         }
 
         //stay in bounds
@@ -120,7 +153,7 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
     }
 
     /**
-     * set the current value
+     * set the current value, expects to be called in sync
      */
     public void setValue(int newValue) {
         this.value = newValue;
@@ -136,6 +169,25 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
         //update result
         updateLore();
         decimalConsumer.accept(value);
+    }
+
+    /**
+     * takes the displayname of an ItemStack and tries to parse a decimal value from it
+     */
+    protected void acceptStringItem(@NotNull ItemStack stringResult) {
+        String itemName = PlainTextComponentSerializer.plainText().serialize(stringResult.displayName());
+
+        Bukkit.getScheduler().runTask(this.plugin, () -> {
+            if (MenuUtils.isDouble(itemName)) {
+                this.value = Double.parseDouble(itemName);
+                this.decimalConsumer.accept(this.value);
+            } else {
+
+                if (this.viewer != null) {
+                    this.viewer.sendMessage(Component.text("Error, couldn't understand '" + itemName + " as a decimal.")); // todo translation
+                }
+            }
+        });
     }
 
     @Override

@@ -46,8 +46,13 @@ public class ColorPickerMenu extends BasicMenu {
         //set color selector up
         for (int i = 0; i < 5 * 9; i++) {
             setItem(new ColorHolderMenuItem(this.plugin, Material.LEATHER_CHESTPLATE, 1, NamedTextColor.BLACK, resultingColor -> {
-                this.result.accept(resultingColor);
-                Bukkit.getScheduler().runTask(this.plugin, () -> super.view.close());
+                Bukkit.getScheduler().runTask(this.plugin, () -> {
+                    this.result.accept(resultingColor);
+
+                    if (this.view != null) {
+                        super.view.close();
+                    }
+                });
             }), i);
         }
 

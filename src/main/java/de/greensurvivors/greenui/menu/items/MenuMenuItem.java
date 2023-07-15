@@ -49,7 +49,11 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
 
         switch (event.getClick()) {
             case LEFT, DOUBLE_CLICK, SHIFT_LEFT -> Bukkit.getScheduler().runTask(
-                    this.plugin, () -> (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent()
+                    this.plugin, () -> {
+                        (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
+
+                        menuToOpen.open(event.getWhoClicked());
+                    }
             );
         }
     }

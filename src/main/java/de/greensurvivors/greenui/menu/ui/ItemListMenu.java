@@ -1,6 +1,7 @@
 package de.greensurvivors.greenui.menu.ui;
 
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -41,7 +42,7 @@ public class ItemListMenu extends BasicMultiPageMenu implements Cloneable {
         if (event.getRawSlot() >= this.getSize() - 9 && event.getRawSlot() < this.getSize()) {
             super.onInventoryClick(event);
 
-            itemListConsumer.accept(getAllItems(true));
+            Bukkit.getScheduler().runTask(this.plugin, () -> itemListConsumer.accept(getAllItems(true)));
 
             // don't allow modification of the last row
             event.setCancelled(true);

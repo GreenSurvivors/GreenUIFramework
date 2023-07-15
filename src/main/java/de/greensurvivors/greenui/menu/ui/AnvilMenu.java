@@ -85,9 +85,13 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
         super.onInventoryClick(event);
 
         if (event.getRawSlot() == MenuUtils.TwoCraftSlots.RESULT.getId() && ((AnvilInventory) inventory).getResult() != null) {
-            itemConsumer.accept(((AnvilInventory) inventory).getResult());
+            Bukkit.getScheduler().runTask(this.plugin, () -> {
+                itemConsumer.accept(((AnvilInventory) inventory).getResult());
 
-            Bukkit.getScheduler().runTask(this.plugin, () -> this.view.close());
+                if (this.view != null) {
+                    this.view.close();
+                }
+            });
             event.setCancelled(true);
         }
     }
