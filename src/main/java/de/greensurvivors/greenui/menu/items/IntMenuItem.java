@@ -1,12 +1,14 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -37,12 +39,12 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected @Nullable HumanEntity viewer;
 
-    public IntMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Integer> consumer) {
-        this(plugin, displayMat, 1, null, consumer, 0, null, null);
+    public IntMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Consumer<Integer> consumer) {
+        this(plugin, translator, displayMat, 1, null, consumer, 0, null, null);
     }
 
-    public IntMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Integer> consumer, int startingValue, @Nullable Integer min, @Nullable Integer max) {
-        super(plugin, displayMat, amount, name, null);
+    public IntMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Integer> consumer, int startingValue, @Nullable Integer min, @Nullable Integer max) {
+        super(plugin, translator, displayMat, amount, name, null);
 
         this.intConsumer = consumer;
         this.value = startingValue;
@@ -57,12 +59,12 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
             value = Math.min(max, value);
         }
 
-        this.menuToOpen = new AnvilMenu(plugin, true, false, null, String.valueOf(this.value), this::acceptStringItem);
+        this.menuToOpen = new AnvilMenu(plugin, this.translator, true, false, null, String.valueOf(this.value), this::acceptStringItem);
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
+        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_SAVE.getKey()));
         saveButton.setItemMeta(meta);
 
         //update result
@@ -147,7 +149,7 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
             } else {
 
                 if (this.viewer != null) {
-                    this.viewer.sendMessage(Component.text("Error, couldn't understand '" + itemName + " as a decimal.")); // todo translation
+                    this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUITEM_INT_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
                 }
             }
         });

@@ -1,9 +1,12 @@
 package de.greensurvivors.greenui.menu;
 
+import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import de.greensurvivors.greenui.menu.ui.TradeMenu;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -19,6 +22,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Stack;
@@ -31,13 +35,15 @@ import java.util.logging.Level;
 public class MenuManager implements Listener {
     private final static long REOPEN_TICKS = 20 /* Ticks*/ * 60;
 
-    private final Plugin plugin;
+    private final @NotNull Plugin plugin;
+    private final @NotNull Translator translator;
     // Stores all currently open inventories by all players, using a stack system we can easily add or remove child inventories.
-    private final HashMap<UUID, Stack<Menu>> activeMenus = new HashMap<>();
-    private final HashMap<Menu, BukkitTask> reopeningMenus = new HashMap<>();
+    private final @NotNull HashMap<UUID, Stack<Menu>> activeMenus = new HashMap<>();
+    private final @NotNull HashMap<Menu, BukkitTask> reopeningMenus = new HashMap<>();
 
-    public MenuManager(Plugin plugin) {
+    public MenuManager(@NotNull Plugin plugin, @NotNull Translator translator) {
         this.plugin = plugin;
+        this.translator = translator;
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
@@ -146,7 +152,7 @@ public class MenuManager implements Listener {
             case REOPEN_LATER -> {
                 BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin, () -> menu.open(event.getPlayer()), REOPEN_TICKS);
                 reopeningMenus.put(menu, task);
-                //todo feedback
+                event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUMANAGER_REOPENLATER.getKey()).format(new long[]{REOPEN_TICKS / 20L})));
             }
             default -> {
                 plugin.getLogger().log(Level.WARNING, "Unknown close result. How did we get here? Removing Menu from Stack anyway");
@@ -177,7 +183,7 @@ public class MenuManager implements Listener {
                     task.cancel();
                 }
             } else {
-                // todo: error, we are out of sync!
+                this.plugin.getLogger().log(Level.WARNING, "Player " + event.getPlayer().getName() + " (" + playerId.toString() + ") is out of sync with the MenuManager. Please contact an Admin!");
             }
         }
     }
@@ -204,7 +210,7 @@ public class MenuManager implements Listener {
                     task.cancel();
                 }
             } else {
-                // todo: error, we are out of sync!
+                this.plugin.getLogger().log(Level.WARNING, "Player " + event.getPlayer().getName() + " (" + playerId.toString() + ") is out of sync with the MenuManager. Please contact an Admin!");
             }
         }
     }

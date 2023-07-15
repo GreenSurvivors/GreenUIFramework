@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -43,13 +44,15 @@ public class TradeMenu implements Menu, Cloneable {
     protected @Nullable TextComponent title;
     protected @NotNull Plugin plugin;
     protected @Nullable DirectIntractable intractableWaiting;
+    protected final @NotNull Translator translator;
 
-    public TradeMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
-        this(plugin, shouldReturnedTo, allowModifyNonMenuItems, null, List.of());
+    public TradeMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
+        this(plugin, translator, shouldReturnedTo, allowModifyNonMenuItems, null, List.of());
     }
 
-    public TradeMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @NotNull List<@NotNull MerchantRecipe> recipes) {
+    public TradeMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @NotNull List<@NotNull MerchantRecipe> recipes) {
         this.plugin = plugin;
+        this.translator = translator;
         this.shouldReturnedTo = shouldReturnedTo;
         this.allowModifyNonMenuItems = allowModifyNonMenuItems;
         this.title = title;

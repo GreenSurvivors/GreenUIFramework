@@ -1,12 +1,14 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.ItemStackInfo;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -41,19 +43,19 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected @Nullable HumanEntity viewer;
 
-    public CyclicMenuItem(@NotNull Plugin plugin, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
-        super(plugin);
+    public CyclicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
+        super(plugin, translator);
         this.itemStackInfos = display;
         this.infoConsumer = infoConsumer;
 
         updateDisplay();
 
-        this.menuToOpen = new AnvilMenu(plugin, true, false, null, PlainTextComponentSerializer.plainText().serialize(this.displayName()), this::acceptStringItem);
+        this.menuToOpen = new AnvilMenu(plugin, this.translator, true, false, null, PlainTextComponentSerializer.plainText().serialize(this.displayName()), this::acceptStringItem);
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
+        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_SAVE.getKey()));
         saveButton.setItemMeta(meta);
 
         this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
@@ -186,7 +188,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
             updateDisplay();
             Bukkit.getScheduler().runTask(this.plugin, () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
         } else if (viewer != null) {
-            viewer.sendMessage(Component.text("")); //todo
+            this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUITEM_CYCLIC_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
         }
     }
 

@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -28,12 +29,12 @@ public class BoolMenuItem extends BasicMenuItem implements Cloneable {
     // the state this item is in
     protected boolean stateNow;
 
-    public BoolMenuItem(@NotNull Plugin plugin, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
-        this(plugin, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
+    public BoolMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @Nullable Component name, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer) {
+        this(plugin, translator, startingValue, boolConsumer, makeDefaultTrue(name), makeDefaultFalse(name));
     }
 
-    public BoolMenuItem(@NotNull Plugin plugin, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
-        super(plugin);
+    public BoolMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, boolean startingValue, @NotNull Consumer<Boolean> boolConsumer, @NotNull ItemStack trueStack, @NotNull ItemStack falseStack) {
+        super(plugin, translator);
 
         this.boolConsumer = boolConsumer;
         this.stateNow = startingValue;

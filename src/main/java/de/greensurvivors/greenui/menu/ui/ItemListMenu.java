@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,12 +21,12 @@ import java.util.function.Consumer;
 public class ItemListMenu extends BasicMultiPageMenu implements Cloneable {
     protected @NotNull Consumer<@NotNull List<@NotNull ItemStack>> itemListConsumer;
 
-    public ItemListMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, @NotNull Consumer<@NotNull List<@NotNull ItemStack>> itemListConsumer) {
-        this(plugin, shouldReturnToParent, null, 6, itemListConsumer);
+    public ItemListMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnToParent, @NotNull Consumer<@NotNull List<@NotNull ItemStack>> itemListConsumer) {
+        this(plugin, translator, shouldReturnToParent, null, 6, itemListConsumer);
     }
 
-    public ItemListMenu(@NotNull Plugin plugin, boolean shouldReturnToParent, @Nullable TextComponent title, int rows, @NotNull Consumer<@NotNull List<@NotNull ItemStack>> itemListConsumer) {
-        super(plugin, shouldReturnToParent, true, title, rows);
+    public ItemListMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnToParent, @Nullable TextComponent title, int rows, @NotNull Consumer<@NotNull List<@NotNull ItemStack>> itemListConsumer) {
+        super(plugin, translator, shouldReturnToParent, true, title, rows);
 
         this.itemListConsumer = itemListConsumer;
     }

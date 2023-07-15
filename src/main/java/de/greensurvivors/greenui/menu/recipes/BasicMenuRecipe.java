@@ -70,7 +70,6 @@ public class BasicMenuRecipe extends MerchantRecipe {
             menuItem.onTradeSelect(event);
         }
 
-        //todo select the event manually
         event.setCancelled(true);
     }
 }

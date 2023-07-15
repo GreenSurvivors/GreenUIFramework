@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -21,8 +22,8 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
     protected @NotNull Consumer<Block> blockConsumer;
     protected @NotNull Menu parent;
 
-    public BlockMenuItem(@NotNull Plugin plugin, @NotNull Menu parent, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Consumer<Block> blockConsumer) {
-        super(plugin, displayMat, amount, name, description);
+    public BlockMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Menu parent, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Consumer<Block> blockConsumer) {
+        super(plugin, translator, displayMat, amount, name, description);
 
         this.blockConsumer = blockConsumer;
         this.parent = parent;
@@ -120,7 +121,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
      */
     protected void updateDisplay(Block block) {
         if (block.getType().isItem()) {
-            this.setType(block.getType());
+            this.setType(block.getType()); //BlockNBTComponent
         }
 
         this.lore(List.of(Component.text(block.getBlockData().getAsString())));

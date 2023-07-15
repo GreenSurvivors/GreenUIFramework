@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import net.kyori.adventure.text.Component;
@@ -27,12 +28,12 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     protected @NotNull Consumer<@NotNull ItemStack> itemConsumer;
     protected @Nullable String startingText;
 
-    public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
-        this(plugin, shouldReturnedTo, false, null, null, itemConsumer);
+    public AnvilMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
+        this(plugin, translator, shouldReturnedTo, false, null, null, itemConsumer);
     }
 
-    public AnvilMenu(@NotNull Plugin plugin, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
-        super(plugin, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems);
+    public AnvilMenu(@NotNull Plugin plugin, @NotNull Translator translator, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
+        super(plugin, translator, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems);
         this.itemConsumer = itemConsumer;
         this.startingText = startingText;
         this.title = title;
@@ -52,7 +53,7 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
             ItemStack left = ((AnvilInventory) inventory).getFirstItem();
 
             if (left == null) {
-                left = new BasicMenuItem(this.plugin, Material.PAPER);
+                left = new BasicMenuItem(this.plugin, this.translator, Material.PAPER);
             }
 
             ItemMeta meta = left.getItemMeta();

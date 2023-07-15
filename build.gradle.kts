@@ -1,5 +1,3 @@
-//import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
-
 plugins {
     `java-library`
     //java

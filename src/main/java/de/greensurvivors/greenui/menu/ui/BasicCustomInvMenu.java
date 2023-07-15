@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.ui;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.DirectIntractable;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -30,13 +31,15 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
     protected @Nullable TextComponent title;
     protected @NotNull Plugin plugin;
     protected @Nullable DirectIntractable intractableWaiting = null;
+    protected final @NotNull Translator translator;
 
-    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
-        this(plugin, inventory, shouldReturnedTo, allowModifyNonMenuItems, null);
+    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
+        this(plugin, translator, inventory, shouldReturnedTo, allowModifyNonMenuItems, null);
     }
 
-    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title) {
+    public BasicCustomInvMenu(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title) {
         this.plugin = plugin;
+        this.translator = translator;
         this.inventory = inventory;
         this.shouldReturnedTo = shouldReturnedTo;
         this.allowModifyNonMenuItems = allowModifyNonMenuItems;

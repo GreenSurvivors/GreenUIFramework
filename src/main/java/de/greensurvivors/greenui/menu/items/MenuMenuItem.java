@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
@@ -21,12 +22,12 @@ public class MenuMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected boolean shouldReturnToParent;
 
-    public MenuMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Menu menuToOpen) {
-        this(plugin, displayMat, 1, null, null, menuToOpen, true);
+    public MenuMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Menu menuToOpen) {
+        this(plugin, translator, displayMat, 1, null, null, menuToOpen, true);
     }
 
-    public MenuMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Menu menuToOpen, boolean shouldReturnToParent) {
-        super(plugin, displayMat, amount, name, description);
+    public MenuMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Menu menuToOpen, boolean shouldReturnToParent) {
+        super(plugin, translator, displayMat, amount, name, description);
 
         this.menuToOpen = menuToOpen;
         this.shouldReturnToParent = shouldReturnToParent;

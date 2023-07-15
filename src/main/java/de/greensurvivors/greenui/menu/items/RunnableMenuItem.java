@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,12 +19,12 @@ import java.util.List;
 public class RunnableMenuItem extends BasicMenuItem {
     protected @NotNull Runnable runnable;
 
-    public RunnableMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Runnable runnable) {
-        this(plugin, displayMat, 1, null, null, runnable);
+    public RunnableMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Runnable runnable) {
+        this(plugin, translator, displayMat, 1, null, null, runnable);
     }
 
-    public RunnableMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Runnable runnable) {
-        super(plugin, displayMat, amount, name, description);
+    public RunnableMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description, @NotNull Runnable runnable) {
+        super(plugin, translator, displayMat, amount, name, description);
 
         this.runnable = runnable;
     }

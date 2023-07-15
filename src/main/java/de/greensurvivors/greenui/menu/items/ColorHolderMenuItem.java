@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -25,8 +26,8 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
      * @param displayMat should be one of {@link Material#LEATHER_HELMET}, {@link Material#LEATHER_CHESTPLATE}, {@link Material#LEATHER_LEGGINGS} or {@link Material#LEATHER_BOOTS}
      *                   the result will be a leather item colored with the given color. If no valid material is given, this will return a colored {@link Material#LEATHER_CHESTPLATE}
      */
-    public ColorHolderMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @NotNull TextColor color, Consumer<TextColor> colorConsumer) {
-        super(plugin,
+    public ColorHolderMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @NotNull TextColor color, Consumer<TextColor> colorConsumer) {
+        super(plugin, translator,
                 switch (displayMat) {
                     case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> displayMat;
                     default -> Material.LEATHER_CHESTPLATE;

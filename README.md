@@ -33,3 +33,4 @@ Notes
   new inventory gets created
 * CommandBlocks get clientside opened, so without placing one in "reachable" distance there is no way to open its gui
 * some inventories have no visual representation like the jukebox one but can store items nevertheless
+* You can't set the selected Recipe of a merchant without mns.

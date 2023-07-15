@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -21,35 +22,40 @@ import java.util.List;
  */
 public class BasicMenuItem extends ItemStack implements Cloneable {
     protected @NotNull Plugin plugin;
+    protected final @NotNull Translator translator;
 
     /**
      * new basic menu item, defaults to {@link MenuUtils#getFillerMaterial()}
      */
-    public BasicMenuItem(@NotNull Plugin plugin) {
+    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator) {
         super(MenuUtils.getFillerMaterial());
         this.plugin = plugin;
+        this.translator = translator;
     }
 
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Material material) {
+    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material material) {
         super(material);
 
         this.plugin = plugin;
+        this.translator = translator;
     }
 
     /**
      * copy the given itemStack
      */
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull ItemStack displayItemStack) {
+    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull ItemStack displayItemStack) {
         super(displayItemStack.getType());
         super.setAmount(displayItemStack.getAmount());
         super.setItemMeta(displayItemStack.getItemMeta().clone());
 
         this.plugin = plugin;
+        this.translator = translator;
     }
 
-    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description) {
+    public BasicMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @Nullable List<Component> description) {
         super(displayMat, amount);
         this.plugin = plugin;
+        this.translator = translator;
 
         ItemMeta meta = super.getItemMeta();
 
@@ -85,6 +91,6 @@ public class BasicMenuItem extends ItemStack implements Cloneable {
 
     @Override
     public @NotNull BasicMenuItem clone() {
-        return new BasicMenuItem(this.plugin, super.clone());
+        return new BasicMenuItem(this.plugin, this.translator, super.clone());
     }
 }

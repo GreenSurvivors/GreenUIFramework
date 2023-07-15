@@ -1,12 +1,14 @@
 package de.greensurvivors.greenui.menu.items;
 
+import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -43,13 +45,13 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
     protected @NotNull Menu menuToOpen;
     protected @Nullable HumanEntity viewer;
 
-    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, @NotNull Consumer<Double> decimalConsumer) {
-        this(plugin, displayMat, 1, null, decimalConsumer, 0, null, null, 1, 0.1);
+    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, @NotNull Consumer<Double> decimalConsumer) {
+        this(plugin, translator, displayMat, 1, null, decimalConsumer, 0, null, null, 1, 0.1);
     }
 
-    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Double> decimalConsumer,
+    public DecimalMenuItem(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull Material displayMat, int amount, @Nullable Component name, @NotNull Consumer<Double> decimalConsumer,
                            double startingValue, @Nullable Double min, @Nullable Double max, int intStepSize, double fractionalStepSize) {
-        super(plugin, displayMat, amount, name, null);
+        super(plugin, translator, displayMat, amount, name, null);
 
         this.decimalConsumer = decimalConsumer;
         this.value = startingValue;
@@ -66,12 +68,12 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
             value = Math.min(max, value);
         }
 
-        this.menuToOpen = new AnvilMenu(plugin, true, false, null, this.form.format(this.value), this::acceptStringItem);
+        this.menuToOpen = new AnvilMenu(plugin, this.translator, true, false, null, this.form.format(this.value), this::acceptStringItem);
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(LegacyComponentSerializer.legacyAmpersand().deserialize("")); //todo
+        meta.displayName(this.translator.translateToComponent(TranslationData.MEMUITEM_SAVE.getKey()));
         saveButton.setItemMeta(meta);
 
         this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
@@ -184,7 +186,7 @@ public class DecimalMenuItem extends BasicMenuItem implements Cloneable {
             } else {
 
                 if (this.viewer != null) {
-                    this.viewer.sendMessage(Component.text("Error, couldn't understand '" + itemName + " as a decimal.")); // todo translation
+                    this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUITEM_DECIMAL_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
                 }
             }
         });

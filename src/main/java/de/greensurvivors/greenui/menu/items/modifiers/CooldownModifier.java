@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items.modifiers;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -22,8 +23,8 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
      * @param menuItem
      * @param cooldownTicks time in Ticks
      */
-    public CooldownModifier(@NotNull Plugin plugin, @NotNull E menuItem, long cooldownTicks) {
-        this(plugin, menuItem, cooldownTicks, true);
+    public CooldownModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, long cooldownTicks) {
+        this(plugin, translator, menuItem, cooldownTicks, true);
     }
 
     /**
@@ -32,8 +33,8 @@ public class CooldownModifier<E extends BasicMenuItem> extends DisableModifier<E
      * @param cooldownTicks
      * @param activeAtStart ime in Ticks
      */
-    public CooldownModifier(@NotNull Plugin plugin, @NotNull E menuItem, long cooldownTicks, boolean activeAtStart) {
-        super(plugin, menuItem, activeAtStart);
+    public CooldownModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, long cooldownTicks, boolean activeAtStart) {
+        super(plugin, translator, menuItem, activeAtStart);
         this.cooldownTicks = cooldownTicks;
     }
 

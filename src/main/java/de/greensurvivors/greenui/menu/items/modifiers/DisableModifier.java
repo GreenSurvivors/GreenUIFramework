@@ -1,5 +1,6 @@
 package de.greensurvivors.greenui.menu.items.modifiers;
 
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.items.BasicMenuItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -15,12 +16,12 @@ import org.jetbrains.annotations.NotNull;
 public class DisableModifier<E extends BasicMenuItem> extends BasicModifier<E> implements Cloneable {
     protected boolean active;
 
-    public DisableModifier(@NotNull Plugin plugin, @NotNull E menuItem) {
-        this(plugin, menuItem, true);
+    public DisableModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem) {
+        this(plugin, translator, menuItem, true);
     }
 
-    public DisableModifier(@NotNull Plugin plugin, @NotNull E menuItem, boolean activeAtStart) {
-        super(plugin, menuItem);
+    public DisableModifier(@NotNull Plugin plugin, @NotNull Translator translator, @NotNull E menuItem, boolean activeAtStart) {
+        super(plugin, translator, menuItem);
         this.active = activeAtStart;
     }
 

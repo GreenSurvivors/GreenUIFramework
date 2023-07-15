@@ -31,3 +31,7 @@ general
 - [ ] translations and nice formatting
 - [ ] more documenting
 - [ ] ~~permission checks and disabling of menu items if necessary~~ done by user of this
+
+Translator umschreiben um eignene Registery zu haben für LocaleChains
+MessagePattern umschreiben um richtige Placeholder zu haben.
+PlaceholderAPI einbinden
