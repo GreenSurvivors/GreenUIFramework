@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * Registered Translations must be formatted in {@link MiniMessage#deserialize(Object)} readable input
  */
-public class GreenTranslator extends GreenTranslationRegistry { //
+public class GreenTranslator extends GreenTranslationRegistry {
     private boolean shouldUsePlayerLocale;
 
     public GreenTranslator(@NotNull Plugin plugin) {

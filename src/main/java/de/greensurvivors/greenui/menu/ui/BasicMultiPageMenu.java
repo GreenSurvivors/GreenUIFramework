@@ -18,16 +18,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional filter
     protected final int rows;
     protected boolean shouldReturnToParent;
-    protected @NotNull HashMap<@NotNull Integer, @NotNull BasicMenu> pages = new HashMap<>();
+    protected @NotNull ArrayList<@NotNull BasicMenu> pages = new ArrayList<>();
     protected boolean allowModifyNonMenuItems;
     protected TextComponent title;
     //used to update titles
@@ -183,10 +180,9 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
     private void ensurePageExists(int pageNumber) {
         if (pageNumber >= pages.size()) {
             int diff = pages.size() - pageNumber;
-            int start = pages.size();
 
             for (int i = 0; i <= diff; i++) {
-                pages.put(start + i, new BasicMenu(this.manager, false, allowModifyNonMenuItems, (TextComponent) title, rows));
+                pages.add(new BasicMenu(this.manager, false, allowModifyNonMenuItems, title, rows));
             }
         }
     }
@@ -365,7 +361,7 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
      */
     @Override
     public boolean isEmpty() {
-        for (BasicMenu menu : pages.values()) {
+        for (BasicMenu menu : pages) {
             if (!menu.isEmpty()) {
                 return false;
             }
@@ -378,15 +374,14 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
      * removes empty pages
      */
     public void trimPages() {
-        final HashMap<Integer, BasicMenu> result = new HashMap<>();
+        final ArrayList<BasicMenu> result = new ArrayList<>();
 
-        int idIt = 0, newNextId = 0;
-        for (Iterator<BasicMenu> menuIterator = pages.values().iterator(); menuIterator.hasNext(); idIt++) {
+        int idIt = 0;
+        for (Iterator<BasicMenu> menuIterator = pages.iterator(); menuIterator.hasNext(); idIt++) {
             BasicMenu menu = menuIterator.next();
 
             if (!menu.isEmpty()) {
-                result.put(newNextId, menu);
-                newNextId++;
+                result.add(menu);
             } else if (this.openPage > idIt) {
                 this.openPage--;
             }
@@ -426,7 +421,7 @@ public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional fil
             rowsField.set(clone, rows);
 
             clone.shouldReturnToParent = this.shouldReturnToParent;
-            clone.pages = new HashMap<>(pages.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().clone())));
+            clone.pages = pages.stream().map(BasicMenu::clone).collect(Collectors.toCollection(ArrayList::new));
             clone.allowModifyNonMenuItems = allowModifyNonMenuItems;
             clone.title = title;
 

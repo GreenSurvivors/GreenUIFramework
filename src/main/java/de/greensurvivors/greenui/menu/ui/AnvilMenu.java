@@ -32,10 +32,9 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     public AnvilMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, @Nullable String startingText, @NotNull Consumer<@NotNull ItemStack> itemConsumer) {
-        super(manager, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems);
+        super(manager, makeInv(title), shouldReturnedTo, allowModifyNonMenuItems, title);
         this.itemConsumer = itemConsumer;
         this.startingText = startingText;
-        this.title = title;
     }
 
     /**

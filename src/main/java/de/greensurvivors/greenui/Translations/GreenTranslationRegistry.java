@@ -47,13 +47,12 @@ import java.util.logging.Level;
 import static java.util.Objects.requireNonNull;
 
 public class GreenTranslationRegistry {
-    private final @NotNull Locale fallbackLocale;
     private final Map<@NotNull Locale, @Nullable ConcurrentHashMap<String, MessageFormat>> translations = new ConcurrentHashMap<>();
     private @Nullable Locale defaultLocale;
 
     public GreenTranslationRegistry(@NotNull Plugin plugin, @Nullable Locale defaultLocale) {
         this.defaultLocale = defaultLocale;
-        this.fallbackLocale = new Locale.Builder().setLanguage("cow").setScript("Latn").setRegion("GS").build();
+        Locale fallbackLocale = Locale.getDefault();
 
         // register fallback translations
         FileConfiguration cfg = getFallbackConfig(plugin);
@@ -61,7 +60,7 @@ public class GreenTranslationRegistry {
             String message = cfg.getString(data.getKey());
 
             if (message != null) {
-                this.registerLocaleKey(fallbackLocale, data.getKey(), new MessageFormat(message));
+                this.registerLocaleKey(fallbackLocale, data.getKey(), new MessageFormat(message, fallbackLocale));
             }
         }
     }
@@ -184,7 +183,7 @@ public class GreenTranslationRegistry {
                 bundleStr = TranslationRegistry.SINGLE_QUOTE_PATTERN.matcher(bundleStr).replaceAll("''");
             }
 
-            this.registerLocaleKey(locale, key, new MessageFormat(bundleStr));
+            this.registerLocaleKey(locale, key, new MessageFormat(bundleStr, locale));
         }
     }
 
@@ -241,7 +240,7 @@ public class GreenTranslationRegistry {
             result = getLocaleFormat(defaultLocale, key);
 
             if (result == null) {
-                result = getLocaleFormat(fallbackLocale, key);
+                result = getLocaleFormat(Locale.getDefault(), key);
             }
         }
 

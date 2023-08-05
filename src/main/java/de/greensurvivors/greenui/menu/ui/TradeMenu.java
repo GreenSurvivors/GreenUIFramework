@@ -35,7 +35,7 @@ public class TradeMenu implements Menu, Cloneable {
     protected final @NotNull MenuManager manager;
     protected @NotNull List<@NotNull MerchantRecipe> recipes;
     protected @NotNull Merchant merchant;
-    protected Inventory inventory;
+    protected @NotNull Inventory inventory;
     protected boolean shouldReturnedTo;
     protected boolean allowModifyNonMenuItems;
     protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;

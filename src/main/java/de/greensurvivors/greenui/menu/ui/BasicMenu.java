@@ -16,7 +16,7 @@ public class BasicMenu extends BasicCustomInvMenu implements Menu, Cloneable {
     }
 
     public BasicMenu(@NotNull MenuManager manager, boolean shouldReturnedTo, boolean allowModifyNonMenuItems, @Nullable TextComponent title, int rows) {
-        super(manager, makeInv(title, rows), shouldReturnedTo, allowModifyNonMenuItems);
+        super(manager, makeInv(title, rows), shouldReturnedTo, allowModifyNonMenuItems, title);
     }
 
     /**
