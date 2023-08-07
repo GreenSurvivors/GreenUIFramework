@@ -1,8 +1,10 @@
 pluginManagement {
-  repositories {
-    gradlePluginPortal()
-  }
+    repositories {
+        gradlePluginPortal()
+    }
 }
 
+rootProject.name = "GreenUIFrameworkProject"
 
-rootProject.name = "GreenUIFramework"
+include("lib","gui-example")
+project(":lib").name = "GreenUIFramework"

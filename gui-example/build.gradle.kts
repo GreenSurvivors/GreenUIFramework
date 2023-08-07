@@ -1,13 +1,14 @@
+
 plugins {
+    // Apply the java-library plugin for API and implementation separation.
     `java-library`
-    //java
+    //paper
     id("io.papermc.paperweight.userdev") version "1.5.5"
-    id("xyz.jpenilla.run-paper") version "2.1.0" // Adds runServer and runMojangMappedServer tasks for testing
 }
 
 group = "de.greensurvivors"
-version = "0.0.2-SNAPSHOT"
-description = "A framework to create GUIs "
+version = "0.0.1-SNAPSHOT"
+description = "A little plugin to test GUIs"
 // this is the minecraft major version. If you need a subversion like 1.20.1,
 // change it in the dependencies section as this is also used as the api version of the plugin.yml
 val mainMCVersion by extra("1.20")
@@ -18,20 +19,24 @@ java {
 }
 
 repositories {
-    mavenLocal()
+    // Use Maven Central for resolving dependencies.
     mavenCentral()
+    mavenLocal()
 
     //paper
     maven {
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
-    maven {
-        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    }
 }
 
 dependencies {
     paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
+
+    //please note: right now the lib is not avileble via maven central, one it is use the libraries feature in the plugin.yml and compile only
+    //takes from project
+    api(project(":GreenUIFramework"))
+    //takes from maven
+    //compileOnly("de.greensurvivors:GreenUIFramework:0.0.2-SNAPSHOT")
 }
 
 tasks {
@@ -65,5 +70,4 @@ tasks {
       outputJar.set(layout.buildDirectory.file("libs/PaperweightTestPlugin-${project.version}.jar"))
     }
      */
-
 }

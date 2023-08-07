@@ -249,7 +249,7 @@ public class MenuManager implements Listener {
             return;
 
         Stack<Menu> menus = activeMenus.get(playerId);
-        while (activeMenus.get(playerId).size() > 0) {
+        while (!activeMenus.get(playerId).isEmpty()) {
             menus.pop().onClose();
         }
         activeMenus.remove(playerId);

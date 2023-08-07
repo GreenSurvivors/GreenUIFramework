@@ -8,7 +8,7 @@ import org.bukkit.inventory.MerchantRecipe;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A Recipe can hold menu items and will call their {@link de.greensurvivors.greenui.menu.items.BasicMenuItem#onTradeSelect(TradeSelectEvent)} methode when selected.
+ * A Recipe can hold menu items and will call their {@link BasicMenuItem#onTradeSelect(TradeSelectEvent)} methode when selected.
  */
 public class BasicMenuRecipe extends MerchantRecipe {
     protected @NotNull MenuManager manager;

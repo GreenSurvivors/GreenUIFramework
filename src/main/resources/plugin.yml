@@ -1,6 +1,0 @@
-main: de.greensurvivors.greenui.GreenUIFramework
-name: GreenUIFramework
-api-version: "${apiVersion}"
-version: ${version}
-description: ${description}
-author: GreensurvivorsTeam

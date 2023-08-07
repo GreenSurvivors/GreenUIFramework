@@ -1,0 +1,8 @@
+main: de.greensurvivors.guiexample.GUIExample
+name: GUIExample
+api-version: "${apiVersion}"
+version: ${version}
+description: ${description}
+author: "GreenSurvivors Team"
+libraries:
+  - org.apache.commons:commons-text:1.10.0

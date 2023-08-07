@@ -36,6 +36,6 @@ translations
 
 - [X] ~~rewrite Translator to get ready for localeGroups~~
 - [ ] locale groups -> if one Locale doesn't have a translation for a key may ask the group
-- [X] fallback are shipped translations
-- [ ] rewrite Message pattern to have better Placeholders
-- [ ] Placeholder API optional dependency
+- [X] ~~fallback are shipped translations~~
+- [ ] ~~rewrite Message pattern to have better Placeholders~~ Use ExtendedMessageFormat
+- [] ~~Placeholder API optional dependency~~ Problem of the user of this framework
