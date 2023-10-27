@@ -69,7 +69,7 @@ publishing {
 
     repositories {
         maven {
-            name = "greensurvivors"
+            name = "greensurvivorsMaven"
             url = uri("https://maven.greensurvivors.de/releases")
             credentials(PasswordCredentials::class)
             authentication {
