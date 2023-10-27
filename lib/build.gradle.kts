@@ -67,11 +67,14 @@ publishing {
         }
     }
 
-    /*
     repositories {
         maven {
-            name = "myRepo"
-            url = uri(layout.buildDirectory.dir("repo"))
+            name = "greensurvivors"
+            url = uri("https://maven.greensurvivors.de/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
         }
-    }*/
+    }
 }
