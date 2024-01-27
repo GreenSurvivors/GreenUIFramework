@@ -80,7 +80,6 @@ publishing {
         create<MavenPublication>("GreenUIFramework") {
             from(components["java"]) // dev
             //artifact(tasks.jar.get().outputs.files.singleFile) // production
-            artifact(rootProject.layout.buildDirectory.file("libs/${rootProject.name}-${version}.jar"))
             pom {
                 name.set("GreenUIFramework")
                 description.set("A handy lib to create inventory based Menus")
