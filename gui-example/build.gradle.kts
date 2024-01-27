@@ -39,9 +39,9 @@ dependencies {
 
     //please note: right now the lib is not avileble via maven central, one it is use the libraries feature in the plugin.yml and compile only
     //takes from project
-    //api(project(":GreenUIFramework"))
+    api(project(":GreenUIFramework"))
     //takes from maven
-    api("de.greensurvivors","GreenUIFramework","0.0.2", classifier = "dev")
+    //api("de.greensurvivors","GreenUIFramework","0.0.2", classifier = "dev")
 }
 
 tasks {
