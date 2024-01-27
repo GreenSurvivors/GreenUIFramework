@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "de.greensurvivors"
-version = "0.0.3-SNAPSHOT"
+version = "0.0.4-SNAPSHOT"
 description = "A framework to create GUIs "
 
 java {
@@ -45,10 +45,6 @@ tasks {
         dependsOn(reobfJar)
     }
 
-    publish {
-        dependsOn(reobfJar)
-    }
-
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
 
@@ -75,11 +71,21 @@ tasks {
     }
 }
 
+// allow to publish tasks to publish the remapped jars.
+// this have to be done after evaluating,
+// since the maven-publish plugin adds its tasks lazily based on the configured publications,
+// so they are not available before.
+afterEvaluate {
+    tasks.withType(AbstractPublishToMaven::class.java) {
+        dependsOn(tasks.reobfJar)
+    }
+}
+
 publishing {
     publications {
         create<MavenPublication>("GreenUIFramework") {
             from(components["java"]) // dev
-            //artifact(tasks.jar.get().outputs.files.singleFile) // production
+            artifact(tasks.jar.get().outputs.files.singleFile) // production
             pom {
                 name.set("GreenUIFramework")
                 description.set("A handy lib to create inventory based Menus")

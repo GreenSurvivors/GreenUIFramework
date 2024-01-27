@@ -41,7 +41,7 @@ dependencies {
     //takes from project
     api(project(":GreenUIFramework"))
     //takes from maven
-    //api("de.greensurvivors","GreenUIFramework","0.0.2", classifier = "dev")
+    //api("de.greensurvivors","GreenUIFramework","0.0.4", classifier = "dev")
 }
 
 tasks {
