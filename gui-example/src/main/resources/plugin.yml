@@ -6,3 +6,10 @@ description: ${description}
 author: "GreenSurvivors Team"
 libraries:
   - org.apache.commons:commons-text:1.10.0
+  - de.greensurvivors:GreenUIFramework:0.0.2-SNAPSHOT
+
+commands:
+  testmenu:
+    aliases:
+      - tm
+    description: All menu test commands.
