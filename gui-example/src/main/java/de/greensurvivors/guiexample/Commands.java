@@ -16,7 +16,7 @@ import java.util.List;
 public class Commands implements CommandExecutor, TabCompleter {
     private final @NotNull GUIExample plugin;
 
-    public Commands (@NotNull GUIExample plugin) {
+    public Commands(@NotNull GUIExample plugin) {
         this.plugin = plugin;
     }
 

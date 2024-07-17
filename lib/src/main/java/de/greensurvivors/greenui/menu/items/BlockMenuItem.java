@@ -117,7 +117,7 @@ public class BlockMenuItem extends BasicMenuItem implements DirectIntractable, C
     /**
      * updates how the item looks in order to represent what block was interacted with
      */
-    protected void updateDisplay(Block block) {
+    protected void updateDisplay(@NotNull Block block) {
         if (block.getType().isItem()) {
             this.setType(block.getType()); //BlockNBTComponent
         }

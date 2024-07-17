@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RunnableMenuRecipe extends BasicMenuRecipe {
     // called whenever the state changes
-    protected @NotNull Runnable runnable;
+    protected final @NotNull Runnable runnable;
 
     public RunnableMenuRecipe(@NotNull MenuManager manager, @NotNull Runnable runnable, @NotNull ItemStack result, int maxUses) {
         super(manager, result, maxUses);

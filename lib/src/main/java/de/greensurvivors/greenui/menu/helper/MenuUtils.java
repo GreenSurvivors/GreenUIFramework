@@ -150,7 +150,7 @@ public class MenuUtils {
             return false;
         }
 
-        if (toTest.length() == 0) { //empty
+        if (toTest.isEmpty()) { //empty
             return false;
         }
 

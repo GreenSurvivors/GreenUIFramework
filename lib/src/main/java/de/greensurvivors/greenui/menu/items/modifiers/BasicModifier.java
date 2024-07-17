@@ -56,7 +56,7 @@ public class BasicModifier<E extends BasicMenuItem> extends BasicMenuItem implem
             basicModifier.copyEmbedded();
         }
 
-        super.setType(menuItem.getType());
+        super.setType(menuItem.getType()); // I know what I'm doing. It's semi fine and does not do the stupid things the deprivation is about
         super.setAmount(menuItem.getAmount());
         super.setItemMeta(menuItem.getItemMeta().clone());
     }
@@ -77,6 +77,7 @@ public class BasicModifier<E extends BasicMenuItem> extends BasicMenuItem implem
         copyEmbedded();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public @NotNull BasicModifier<E> clone() {
         BasicModifier<E> clone = (BasicModifier<E>) super.clone();

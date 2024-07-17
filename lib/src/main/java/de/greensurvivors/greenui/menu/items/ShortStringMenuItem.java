@@ -1,6 +1,6 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.BuildInLangPaths;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
@@ -39,7 +39,7 @@ public class ShortStringMenuItem extends MenuMenuItem implements Cloneable {
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(this.manager.getTranslator().translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
+        meta.displayName(this.manager.getTranslator().getLang(manager.getTranslator().getDefaultLocale(), BuildInLangPaths.MEMUITEM_GENERAL_SAVE)); // todo locale!!
         saveButton.setItemMeta(meta);
 
         super.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());

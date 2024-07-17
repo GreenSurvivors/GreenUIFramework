@@ -1,6 +1,7 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.BuildInLangPaths;
+import de.greensurvivors.greenui.Translations.BuildInPlaceHolders;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.ItemStackInfo;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
@@ -8,11 +9,11 @@ import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.AnvilMenu;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
@@ -31,16 +32,14 @@ import java.util.stream.Collectors;
  */
 public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
     protected static final int LORE_ENTRIES = 5; // has to be uneven to  display an even number of items before / after, and the state we are in, in between
-
+    protected final @NotNull Menu menuToOpen;
     // holds the list of display items to circle through
     protected @NotNull List<@NotNull ItemStackInfo> itemStackInfos;
     // called whenever the index was changed
     protected @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer;
     // holds the index of the current info taken from itemStackInfos
     protected int index = 0;
-
-    protected @NotNull Menu menuToOpen;
-    protected @Nullable HumanEntity viewer;
+    protected @Nullable Player viewer;
 
     public CyclicMenuItem(@NotNull MenuManager manager, @NotNull List<@NotNull ItemStackInfo> display, @NotNull Consumer<@NotNull ItemStackInfo> infoConsumer) {
         super(manager);
@@ -49,12 +48,13 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
 
         updateDisplay();
 
+
         this.menuToOpen = new AnvilMenu(manager, true, false, null, PlainTextComponentSerializer.plainText().serialize(this.displayName()), this::acceptStringItem);
 
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(this.manager.getTranslator().translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
+        meta.displayName(this.manager.getTranslator().getLang(viewer.locale(), BuildInLangPaths.MEMUITEM_GENERAL_SAVE));
         saveButton.setItemMeta(meta);
 
         this.menuToOpen.setItem(saveButton, MenuUtils.TwoCraftSlots.RESULT.getId());
@@ -75,7 +75,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
      */
     protected void updateDisplay() {
         if (!itemStackInfos.isEmpty()) {
-            ItemStackInfo elementNow = itemStackInfos.get(0);
+            ItemStackInfo elementNow = itemStackInfos.getFirst();
             super.setType(elementNow.material());
             super.setAmount(elementNow.amount());
 
@@ -120,7 +120,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
                         this.manager.getPlugin(), () -> {
                             (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
 
-                            viewer = event.getWhoClicked();
+                            viewer = (Player) event.getWhoClicked();
                             menuToOpen.open(event.getWhoClicked());
                         }
                 );
@@ -187,7 +187,7 @@ public class CyclicMenuItem extends BasicMenuItem implements Cloneable {
             updateDisplay();
             Bukkit.getScheduler().runTask(this.manager.getPlugin(), () -> this.infoConsumer.accept(this.itemStackInfos.get(index)));
         } else if (viewer != null) {
-            this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.manager.getTranslator().simpleTranslate(TranslationData.MENUITEM_CYCLIC_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
+            this.viewer.sendMessage(this.manager.getTranslator().getLang(viewer.locale(), BuildInLangPaths.MENUITEM_CYCLIC_ERROR_NOMATCH, Placeholder.unparsed(BuildInPlaceHolders.TEXT.getPlaceholder(), itemName)));
         }
     }
 

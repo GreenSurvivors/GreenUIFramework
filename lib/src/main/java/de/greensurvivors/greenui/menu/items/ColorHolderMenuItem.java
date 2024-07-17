@@ -25,7 +25,7 @@ public class ColorHolderMenuItem extends BasicMenuItem implements Cloneable {
      * @param displayMat should be one of {@link Material#LEATHER_HELMET}, {@link Material#LEATHER_CHESTPLATE}, {@link Material#LEATHER_LEGGINGS} or {@link Material#LEATHER_BOOTS}
      *                   the result will be a leather item colored with the given color. If no valid material is given, this will return a colored {@link Material#LEATHER_CHESTPLATE}
      */
-    public ColorHolderMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @NotNull TextColor color, Consumer<TextColor> colorConsumer) {
+    public ColorHolderMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, int amount, @NotNull TextColor color, @NotNull Consumer<TextColor> colorConsumer) {
         super(manager,
                 switch (displayMat) {
                     case LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS -> displayMat;

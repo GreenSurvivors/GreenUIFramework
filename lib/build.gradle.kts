@@ -2,18 +2,19 @@ plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
     //paper
-    id("io.papermc.paperweight.userdev") version "1.5.5"
+    id("io.papermc.paperweight.userdev") version "1.7.1"
     //publishing
     `maven-publish`
 }
 
 group = "de.greensurvivors"
-version = "0.0.4-SNAPSHOT"
+version = "0.0.5-SNAPSHOT"
 description = "A framework to create GUIs "
+val mcVersion by extra("1.21")
 
 java {
     // Configure the java toolchain. This allows gradle to auto-provision JDK 17 on systems that only have JDK 8 installed for example.
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 repositories {
@@ -28,7 +29,9 @@ repositories {
 
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
+
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8") // caches
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     //api("org.apache.commons:commons-math3:3.6.1")
@@ -36,21 +39,16 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     //implementation("com.google.guava:guava:31.0.1-jre")
 
-    paperweight.paperDevBundle("1.20.1-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("$mcVersion-R0.1-SNAPSHOT")
 }
 
 tasks {
-    // Configure reobfJar to run when invoking the build task
-    assemble {
-        dependsOn(reobfJar)
-    }
-
     compileJava {
         options.encoding = Charsets.UTF_8.name() // We want UTF-8 for everything
 
         // Set the release flag. This configures what version bytecode the compiler will emit, as well as what JDK APIs are usable.
         // See https://openjdk.java.net/jeps/247 for more information.
-        options.release.set(17)
+        options.release.set(21)
     }
 
     processResources {

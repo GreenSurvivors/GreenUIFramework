@@ -1,12 +1,13 @@
 package de.greensurvivors.greenui.menu;
 
-import de.greensurvivors.greenui.Translations.GreenTranslator;
-import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.BuildInLangPaths;
+import de.greensurvivors.greenui.Translations.BuildInPlaceHolders;
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import de.greensurvivors.greenui.menu.ui.TradeMenu;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -36,12 +37,12 @@ public class MenuManager implements Listener {
     private final static long REOPEN_TICKS = 20 /* ticks*/ * 60  /* seconds*/;
 
     private final @NotNull Plugin plugin;
-    private final @NotNull GreenTranslator translator;
+    private final @NotNull Translator translator;
     // Stores all currently open inventories by all players, using a stack system we can easily add or remove child inventories.
     private final @NotNull HashMap<UUID, Stack<Menu>> activeMenus = new HashMap<>();
     private final @NotNull HashMap<Menu, BukkitTask> reopeningMenus = new HashMap<>();
 
-    public MenuManager(@NotNull Plugin plugin, @NotNull GreenTranslator translator) {
+    public MenuManager(@NotNull Plugin plugin, @NotNull Translator translator) {
         this.plugin = plugin;
         this.translator = translator;
 
@@ -52,7 +53,7 @@ public class MenuManager implements Listener {
         return this.plugin;
     }
 
-    public GreenTranslator getTranslator() {
+    public @NotNull Translator getTranslator() {
         return this.translator;
     }
 
@@ -62,7 +63,7 @@ public class MenuManager implements Listener {
         Stack<Menu> menuStack = activeMenus.get(event.getViewer());
 
         // If we add another menu on top of a menu that should be removed, remove this menu first.
-        if (menuStack.size() > 0 && !menuStack.peek().shouldReturnedTo()) {
+        if (!menuStack.isEmpty() && !menuStack.peek().shouldReturnedTo()) {
             menuStack.pop().onClose();
         }
 
@@ -160,7 +161,8 @@ public class MenuManager implements Listener {
             case REOPEN_AFTER_TIME -> {
                 BukkitTask task = Bukkit.getScheduler().runTaskLater(this.plugin, () -> menu.open(event.getPlayer()), REOPEN_TICKS);
                 reopeningMenus.put(menu, task);
-                event.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(this.translator.simpleTranslate(TranslationData.MENUMANAGER_REOPENLATER.getKey()).format(new long[]{REOPEN_TICKS / 20L})));
+               // todo send lang
+                event.getPlayer().sendMessage(this.translator.getLang(((Player) event.getPlayer()).locale(), BuildInLangPaths.MENUMANAGER_REOPENLATER, Placeholder.unparsed(BuildInPlaceHolders.TIME.getPlaceholder(), String.valueOf(REOPEN_TICKS / 20L))));
             }
             case REOPEN_EVENT -> {
                 //todo implement me for long strings
@@ -194,7 +196,7 @@ public class MenuManager implements Listener {
                     task.cancel();
                 }
             } else {
-                this.plugin.getLogger().log(Level.WARNING, "Player " + event.getPlayer().getName() + " (" + playerId.toString() + ") is out of sync with the MenuManager. Please contact an Admin!");
+                this.plugin.getLogger().log(Level.WARNING, "Player " + event.getPlayer().getName() + " (" + playerId + ") is out of sync with the MenuManager. Please contact an Admin!");
             }
         }
     }
@@ -221,7 +223,7 @@ public class MenuManager implements Listener {
                     task.cancel();
                 }
             } else {
-                this.plugin.getLogger().log(Level.WARNING, "Player " + event.getPlayer().getName() + " (" + playerId.toString() + ") is out of sync with the MenuManager. Please contact an Admin!");
+                this.plugin.getLogger().log(Level.WARNING, "Player " + event.getPlayer().getName() + " (" + playerId + ") is out of sync with the MenuManager. Please contact an Admin!");
             }
         }
     }

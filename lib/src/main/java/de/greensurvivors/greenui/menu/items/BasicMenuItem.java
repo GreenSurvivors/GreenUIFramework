@@ -20,7 +20,7 @@ import java.util.List;
  * In order to get recognized as a special items by the menus, all kinds of MenuItems have to expand this class.
  */
 public class BasicMenuItem extends ItemStack implements Cloneable {
-    protected @NotNull MenuManager manager;
+    protected final @NotNull MenuManager manager;
 
     /**
      * new basic menu item, defaults to {@link MenuUtils#getFillerMaterial()}

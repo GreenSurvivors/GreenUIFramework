@@ -21,14 +21,14 @@ import org.jetbrains.annotations.Nullable;
  * most basic menu. You have to provide an Inventory yourself.
  */
 public class BasicCustomInvMenu implements Menu, Cloneable {
-    protected @NotNull Inventory inventory;
+    protected final @NotNull Inventory inventory;
+    protected final @NotNull MenuManager manager;
     protected boolean shouldReturnedTo;
     protected boolean allowModifyNonMenuItems;
     protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;
     //used to update titles
     protected @Nullable InventoryView view;
     protected @Nullable TextComponent title;
-    protected @NotNull MenuManager manager;
     protected @Nullable DirectIntractable intractableWaiting = null;
 
     public BasicCustomInvMenu(@NotNull MenuManager manager, @NotNull Inventory inventory, boolean shouldReturnedTo, boolean allowModifyNonMenuItems) {
@@ -230,7 +230,7 @@ public class BasicCustomInvMenu implements Menu, Cloneable {
         this.intractableWaiting = intractable;
     }
 
-    public void setClosingResult(MenuUtils.MenuClosingResult closingResult) {
+    public void setClosingResult(@NotNull MenuUtils.MenuClosingResult closingResult) {
         this.closingResult = closingResult;
     }
 

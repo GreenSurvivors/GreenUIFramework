@@ -1,6 +1,7 @@
 package de.greensurvivors.greenui.menu.items;
 
-import de.greensurvivors.greenui.Translations.TranslationData;
+import de.greensurvivors.greenui.Translations.BuildInLangPaths;
+import de.greensurvivors.greenui.Translations.BuildInPlaceHolders;
 import de.greensurvivors.greenui.menu.MenuManager;
 import de.greensurvivors.greenui.menu.helper.MenuUtils;
 import de.greensurvivors.greenui.menu.helper.OpenGreenUIEvent;
@@ -8,11 +9,11 @@ import de.greensurvivors.greenui.menu.ui.AnvilMenu;
 import de.greensurvivors.greenui.menu.ui.Menu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,15 +29,14 @@ import java.util.function.Consumer;
  * The user can click to in/decrease the value, with two step-sizes.
  */
 public class IntMenuItem extends BasicMenuItem implements Cloneable {
+    protected final @NotNull Menu menuToOpen;
     // optional upper / lower bounds
     protected @Nullable Integer min, max;
     // called whenever the value changes
     protected @NotNull Consumer<@NotNull Integer> intConsumer;
     // the state this menuItem is in
     protected int value;
-
-    protected @NotNull Menu menuToOpen;
-    protected @Nullable HumanEntity viewer;
+    protected @Nullable Player viewer;
 
     public IntMenuItem(@NotNull MenuManager manager, @NotNull Material displayMat, @NotNull Consumer<Integer> consumer) {
         this(manager, displayMat, 1, null, consumer, 0, null, null);
@@ -63,7 +63,7 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
         //set displayname for save button
         ItemStack saveButton = new ItemStack(MenuUtils.getSaveMaterial());
         ItemMeta meta = saveButton.getItemMeta();
-        meta.displayName(this.manager.getTranslator().translateToComponent(TranslationData.MEMUITEM_GENERAL_SAVE.getKey()));
+        meta.displayName(this.manager.getTranslator().getLang(viewer.locale(), BuildInLangPaths.MEMUITEM_GENERAL_SAVE));
         saveButton.setItemMeta(meta);
 
         //update result
@@ -91,7 +91,7 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
                         this.manager.getPlugin(), () -> {
                             (new OpenGreenUIEvent(event.getWhoClicked().getUniqueId(), menuToOpen)).callEvent();
 
-                            viewer = event.getWhoClicked();
+                            viewer = (Player) event.getWhoClicked();
                             menuToOpen.open(event.getWhoClicked());
                         }
                 );
@@ -148,7 +148,7 @@ public class IntMenuItem extends BasicMenuItem implements Cloneable {
             } else {
 
                 if (this.viewer != null) {
-                    this.viewer.sendMessage(MiniMessage.miniMessage().deserialize(this.manager.getTranslator().simpleTranslate(TranslationData.MENUITEM_INT_ERROR_NOMATCH.getKey()).format(new String[]{itemName})));
+                    this.viewer.sendMessage(this.manager.getTranslator().getLang(viewer.locale(), BuildInLangPaths.MENUITEM_INT_ERROR_NOMATCH, Placeholder.unparsed(BuildInPlaceHolders.TEXT.getPlaceholder(), itemName)));
                 }
             }
         });

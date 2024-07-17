@@ -41,7 +41,7 @@ public class AnvilMenu extends BasicCustomInvMenu implements Menu, Cloneable {
      * just a helper to make the constructor super() call look neater
      */
     protected static Inventory makeInv(@Nullable TextComponent title) {
-        if (title == null) {
+        if (title == null) { // todo this is broken!!!!!!!!!!!!!!!!!!!!
             return Bukkit.createInventory(null, InventoryType.ANVIL);
         } else {
             return Bukkit.createInventory(null, InventoryType.ANVIL, title);

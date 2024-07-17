@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 
 public class BasicMultiPageMenu implements Menu, Cloneable { //todo optional filter
     protected final int rows;
+    protected final @NotNull MenuManager manager;
     protected boolean shouldReturnToParent;
     protected @NotNull ArrayList<@NotNull BasicMenu> pages = new ArrayList<>();
     protected boolean allowModifyNonMenuItems;
     protected TextComponent title;
     //used to update titles
     protected @Nullable InventoryView view = null;
-    protected @NotNull MenuManager manager;
     protected @NotNull MenuUtils.MenuClosingResult closingResult = MenuUtils.MenuClosingResult.CLOSE;
     protected int openPage = 0;
     protected @Nullable DirectIntractable intractableWaiting = null;

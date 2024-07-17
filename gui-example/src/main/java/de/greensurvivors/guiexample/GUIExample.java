@@ -1,6 +1,6 @@
 package de.greensurvivors.guiexample;
 
-import de.greensurvivors.greenui.Translations.GreenTranslator;
+import de.greensurvivors.greenui.Translations.Translator;
 import de.greensurvivors.greenui.menu.MenuManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -8,9 +8,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 public class GUIExample extends JavaPlugin {
     private static Plugin greenUIFramework;
-    private final @NotNull MenuManager menuManager = new MenuManager(this, new GreenTranslator(this));
+    private final @NotNull MenuManager menuManager = new MenuManager(this, new Translator(this, Locale.getDefault(), "lang"));
 
     public static Plugin getGreenUInstance() {
         return greenUIFramework;
@@ -29,7 +31,7 @@ public class GUIExample extends JavaPlugin {
     public void onDisable() {
         // just close all menus gracefully, nothing should break in the raw famework if you don't do this,
         // but it might be best practice anyway
-        for (Player player : Bukkit.getOnlinePlayers()){
+        for (Player player : Bukkit.getOnlinePlayers()) {
             menuManager.closeAll(player);
         }
     }

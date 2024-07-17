@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * A Recipe can hold menu items and will call their {@link BasicMenuItem#onTradeSelect(TradeSelectEvent)} methode when selected.
  */
 public class BasicMenuRecipe extends MerchantRecipe {
-    protected @NotNull MenuManager manager;
+    protected final @NotNull MenuManager manager;
 
     public BasicMenuRecipe(@NotNull MenuManager manager, @NotNull ItemStack result, int maxUses) {
         super(result, maxUses);
